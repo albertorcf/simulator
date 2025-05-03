@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "visual-editor": "workspace:*",
     "@radix-ui/react-slider": "^1.3.2",
     "@radix-ui/react-slot": "^1.1.2",
     "apexcharts": "^4.5.0",
