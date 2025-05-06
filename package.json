@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "visual-editor": "workspace:*",
+
     "@radix-ui/react-slider": "^1.3.2",
     "@radix-ui/react-slot": "^1.1.2",
     "apexcharts": "^4.5.0",
@@ -26,6 +27,7 @@
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.0.0",
+    "react-querybuilder": "^8.5.0",
     "recharts": "^2.15.2",
     "tailwind-merge": "^3.2.0",
     "tw-animate-css": "^1.2.5"
