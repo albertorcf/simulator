@@ -6,11 +6,12 @@ export const baseStrategy = {
     { name: "saldoUSDT", value: 100 },
     { name: "saldoSOL", value: 0.1 },
     { name: "delta", value: 1 },
-    { name: "qty", value: 0.1 },
+    { name: "qty", value: 0.1 },      // qty a comprar e vender
     { name: "taxa", value: 0.001 },
     { name: "flagBuy", value: true },
     { name: "last", value: 1 },
-    { name: "iddle", value: 10 },  
+    { name: "iddle", value: 10 },
+    { name: "close", value: 0 },      // close price do candle; atualizar a cada iteração do loop
   ],
 
   // Campos usados nas condições
@@ -38,9 +39,9 @@ export const baseStrategy = {
       condition: {
         combinator: "and",
         rules: [
-          { field: "atual.close", operator: ">=", valueSource: "field", value: "resistencia" },
-          { field: "saldoSOL", operator: ">=", valueSource: "value", value: 0.1 },
-          { field: "flagBuy", operator: "=", valueSource: "value", value: true }
+          { field: "close", operator: ">=", valueSource: "field", value: "resistencia" },
+          { field: "saldoSOL", operator: ">=", valueSource: "field", value: "qty" },
+          { field: "flagBuy", operator: "==", valueSource: "value", value: false }
         ]
       } satisfies RuleGroupType,
       action: {
