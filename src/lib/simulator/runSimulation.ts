@@ -1,10 +1,10 @@
 // frontend/src/lib/simulator/runSimulation.ts
-import { avaliarExpressao, avaliarCondicao } from "@/utils/evalExpr";
+import { evalExpr, runExpr } from "@/utils/evalExpr";
 import { Candle } from '@/types/types';
 
 export type RunSimulationParams = {
   candles: Candle[];
-  strategyData: any; // JSON vindo da textarea
+  strategyData: any; // JS da estratégia
 };
 
 export type Operation = {
@@ -105,21 +105,48 @@ function execSell(qty: number, scope: any) {
 
 
 export function runSimulation(params: RunSimulationParams): SimulationResult | null {
-  const { candles, strategyData: config } = params;
+  const { candles, strategyData: strategy } = params;
 
   // 🧪 INICIALIZAÇÃO
   // Validação da estrutura da configuração
-  if (!config.init || typeof config.init !== 'object') {
+  if (!strategy.init || typeof strategy.init !== 'object') {
     console.error("❌ Configuração inválida: campo 'init' é obrigatório.");
     return null;
   }
-  if (!Array.isArray(config.estrategia)) {
+  if (!Array.isArray(strategy.rules)) {
     console.error("❌ Configuração inválida: campo 'estrategia' deve ser uma lista.");
     return null;
   }
 
   // Configuração dos valores iniciais
-  const current = structuredClone(config.init);
+  let init: Record<string, any> = {};
+  for (const field of strategy.init) {
+    init[field.name as string] = field.value;
+  }
+
+  // Configuração das variáveis de condição
+  let varsCondition: Record<string, any> = {};
+  for (const field of strategy.varsCondition) {
+    if (field.value !== undefined) {
+      varsCondition[field.name] = field.value;
+    } else if (field.expr !== undefined) {
+      try {
+        varsCondition[field.name] = evalExpr(field.expr, { ...init, ...varsCondition });
+      } catch (e) {
+        console.warn(`❌ Erro ao avaliar expressão para ${field.name}:`, e);
+        varsCondition[field.name] = null; // Valor padrão em caso de erro
+      }
+    }
+  }
+
+  
+  //
+  // Testando até aqui!
+  //
+  console.log('init', init);
+  console.log('varsCondition', varsCondition);
+  return null;
+
 
   // Definir suporte e resistência se não foram especificados
   current.suporte = current.suporte || (candles[0].close - current.delta);

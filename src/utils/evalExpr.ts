@@ -4,7 +4,7 @@
  * Executa uma expressão JS em contexto isolado usando `new Function` com `with(ctx)`.
  * NÃO usar com entradas públicas. Seguro para uso controlado.
  */
-export function avaliarExpressao(expr: string, ctx: Record<string, any>): any {
+export function runExpr(expr: string, ctx: Record<string, any>): any {
   try {
     const fn = new Function("ctx", `with (ctx) { ${expr} }`);
     return fn(ctx);
@@ -14,7 +14,7 @@ export function avaliarExpressao(expr: string, ctx: Record<string, any>): any {
   }
 }
 
-export function avaliarCondicao(expr: string, ctx: Record<string, any>): boolean {
+export function evalExpr(expr: string, ctx: Record<string, any>): boolean {
   try {
     const fn = new Function("ctx", `with (ctx) { return (${expr}); }`);
     return fn(ctx);

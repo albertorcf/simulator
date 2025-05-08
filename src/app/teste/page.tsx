@@ -10,7 +10,7 @@ import { Candle } from '@/types/types';
 import { parseRange } from "@/utils/dateRange";
 import { SimulationControls } from "@/components/SimulationControls";
 import { fetchBinanceCandles } from "@/utils/candles";
-import estrategiaPadrao from "@/config/estrategia";
+import { baseStrategy } from "@/data/strategies/baseStrategy";
 import { useApexOptions } from "@/hooks/useApexOptions";
 
 export default function TestePage() {
@@ -40,7 +40,7 @@ export default function TestePage() {
   const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
   const [estrategiaTexto, setEstrategiaTexto] = useState(
-    JSON5.stringify(estrategiaPadrao, null, 2)
+    JSON5.stringify(baseStrategy, null, 2)
   );
 
   /** 
@@ -101,7 +101,9 @@ export default function TestePage() {
     onSeekHandler
   });
 
+  //
   // ─────────────────────────── simulação ───────────────────────────
+  //
   async function startSimulation() {
     if (simulando) return;             // evita clique duplo
     cancelRef.current = false;
@@ -112,8 +114,9 @@ export default function TestePage() {
       setCandles(freshCandles);       // <-- atualiza state (gráfico reage)
 
       operationsRef.current = null;
-      const result = runSimulation({ candles: freshCandles, strategyData: JSON5.parse(estrategiaTexto) });
+      const result = runSimulation({ candles: freshCandles, strategyData: baseStrategy });
       if (!result) { setSimulando(false); return; }
+      
       operationsRef.current = [...result.operations];
 
       if (delaySec === 0) {
