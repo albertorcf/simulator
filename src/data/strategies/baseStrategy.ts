@@ -14,8 +14,6 @@ export const baseStrategy = {
     { name: "last", value: 1 },
     { name: "iddleInit", value: 10 },  // valor inicial de iddleCount
     { name: "iddleCount", value: 10 }, // contador de candles (time) inativos (nem compra nem venda)
-    { name: "resistencia", value: 0 },
-    { name: "suporte", value: 0 },
     { name: "close", value: 0 },      // close price do candle; atualizar a cada iteração do loop
     { name: "sellCount", value: 0},
     { name: "buyCount", value: 0 },
@@ -25,6 +23,8 @@ export const baseStrategy = {
 
   // Campos usados apenas nas condições. Não são usados nas ações (readonly)! Atualizados no código!
   varsCondition: [
+    { name: "resistencia", value: 0 },
+    { name: "suporte", value: 0 },
     { name: "index", value: 0 },                // index do loop de candles
     { name: "valorOp", expr: "close * qty" },   // campo calculado - valor da operação (close * qty)
     { name: "inativo", expr: "index - last" },  // tempo inativo - campo calculado (index - last)

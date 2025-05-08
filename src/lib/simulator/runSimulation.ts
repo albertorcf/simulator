@@ -139,19 +139,23 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     }
   }
 
-  
+  let initialScope = { ...init, ...varsCondition };
+
+  // Definir suporte e resistência para os valores iniciais
+  // ToDo: mudar essa lógica mais pra frente!
+  initialScope.suporte = candles[0].close - initialScope.delta;
+  initialScope.resistencia = candles[0].close + initialScope.delta;
+
+
   //
   // Testando até aqui!
   //
-  console.log('init', init);
-  console.log('varsCondition', varsCondition);
+  console.clear();
+  console.log('initialScope', initialScope);
   return null;
 
 
-  // Definir suporte e resistência se não foram especificados
-  current.suporte = current.suporte || (candles[0].close - current.delta);
-  current.resistencia = current.resistencia || (candles[0].close + current.delta);
-
+/*
   // Taxa de operação
   const taxa = parseTaxa(config.init.taxa ?? 0.001);
 
@@ -218,14 +222,16 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 
     operations.push( { ...scope.oper } );
   } // for candle
+  */
 
-
+  /*
   // 📊 RESULTADOS DA SIMULAÇÃO
   return {
-    initialUSDT: config.init.saldoUSDT,
-    initialSOL: config.init.saldoSOL,
+    initialUSDT: scope.saldoUSDT,
+    initialSOL: scope.saldoSOL,
     finalUSDT: scope.saldoUSDT,
     finalSOL: scope.saldoSOL,
-    operations
+    //operations
   };
+  */
 }
