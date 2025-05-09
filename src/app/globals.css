@@ -1,6 +1,8 @@
 @import "tailwindcss";
-@plugin "daisyui";
-@import "tw-animate-css";
+/*@plugin "daisyui";*/
+/*@import "tw-animate-css";*/
+
+@source inline("bg-green-100 overflow-y-auto bg-blue-100 font-semibold cursor-pointer");
 
 @custom-variant dark (&:is(.dark *));
 
