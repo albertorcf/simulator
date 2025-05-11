@@ -75,14 +75,16 @@ export default function QueryBuilderPage() {
 
   return (
     <main className="flex flex-col gap-4 w-full max-w-none px-4 sm:px-6 mx-auto">
+
       <h1 className="text-2xl font-bold mb-2">Query Builder Editor</h1>
 
+      <div className="flex flex-col lg:flex-row gap-6 mb-4 h-37 w-full">
 
-      <div className="flex flex-col lg:flex-row gap-6 mb-1 w-full">
         {/* Listbox de regras (selecionável) */}
-        <div className="flex-1 h-37">
+        <div className="flex-1">
           <h2 className="mb-1 font-semibold">Regras</h2>
-          <Listbox
+          <Listbox 
+            className="rounded border bg-white h-37"
             items={rules.map((r) => r.descr)}
             selectedIndex={selectedRuleIndex}
             onSelect={handleSelectRule}
@@ -90,9 +92,10 @@ export default function QueryBuilderPage() {
         </div>
 
         {/* Listbox de variáveis da condição */}
-        <div className="flex-1 h-37">
+        <div className="flex-1">
           <h2 className="mb-1 font-semibold">Variáveis da Condição</h2>
           <Listbox
+            className="rounded border bg-white"
             headers={["Nome", "Valor", "Expr"]}
             items={[...init, ...varsCondition].map((v: any) => [
               v.name,
@@ -103,9 +106,10 @@ export default function QueryBuilderPage() {
         </div>
 
         {/* Listbox de variáveis da ação */}
-        <div className="flex-1 h-37">
+        <div className="flex-1">
           <h2 className="mb-1 font-semibold">Variáveis da Ação</h2>
           <Listbox
+            className="rounded border bg-white"
             headers={["Nome", "Valor", "Expr"]}
             items={[...init, ...varsAction].map((v: any) => [
               v.name,
