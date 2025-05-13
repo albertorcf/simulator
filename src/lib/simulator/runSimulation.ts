@@ -106,7 +106,7 @@ function execSell(qty: number, scope: any) {
 }
 
 //
-// __________runSimulation__________
+// —————————————runSimulation———————————————
 //
 export function runSimulation(params: RunSimulationParams): SimulationResult | null {
   const { candles, strategyData: strategy } = params;
