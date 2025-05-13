@@ -23,6 +23,7 @@ export const baseStrategy = {
     // Candle
     { name: "close", value: 0, type: "candle" },
     { name: "index", value: 0, type: "candle" },
+    { name: "time",  value: 0, type: "candle" },
 
     // Computed
     { name: "resistencia", value: 0, type: "computed" },

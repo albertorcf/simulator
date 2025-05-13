@@ -57,14 +57,16 @@ function execReset(scope: any) {
 }
 
 /**
+ * buy()
  * qty     = quantidade de SOL que você quer negociar
  * price   = preço do candle (USDT por SOL)
  * feeRate = 0.001  // 0 ,1 %
  */
-function execBuy(qty: number, scope: any) {
-  const atual   = scope.atual;
+function buy(scope: any) {
+  const time   =  scope.time;
   const feeRate = scope.taxa || 0.001;
-  const price   = atual.close;
+  const price   = scope.close;
+  const qty     = scope.qty;
 
   const feeSOL = qty * feeRate;    // taxa cobrada em SOL
   const netSOL = qty - feeSOL;     // SOL realmente creditado
@@ -75,11 +77,11 @@ function execBuy(qty: number, scope: any) {
   scope.saldoUSDT -= costUSD;
 
   // ToDo: retornar taxas calculadas para totalização
-  scope.oper.timestamp = atual.time;
-  scope.oper.price = price;
-  scope.oper.qty = netSOL;
-  scope.oper.R = scope.resistencia;
-  scope.oper.S = scope.suporte;
+  scope.op.timestamp = time;
+  scope.op.price = price;
+  scope.op.qty = netSOL;
+  scope.op.R = scope.resistencia;
+  scope.op.S = scope.suporte;
 }
 
 function execSell(qty: number, scope: any) {
@@ -103,7 +105,9 @@ function execSell(qty: number, scope: any) {
   scope.oper.S = scope.suporte;
 }
 
-
+//
+// __________runSimulation__________
+//
 export function runSimulation(params: RunSimulationParams): SimulationResult | null {
   const { candles, strategyData: strategy } = params;
 
@@ -128,36 +132,68 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     // Actions não são inicializadas aqui, só referenciadas depois
   }
 
-  // Inicializa candle do primeiro elemento
-  if (candles.length > 0) {
-    const firstCandle = candles[0];
-    // Inicializa manualmente os campos do candle
-    if ('close' in firstCandle) scope.close = firstCandle.close;
-    if ('open' in firstCandle) scope.open = firstCandle.open;
-    if ('high' in firstCandle) scope.high = firstCandle.high;
-    if ('low' in firstCandle) scope.low = firstCandle.low;
-    if ('volume' in firstCandle) scope.volume = firstCandle.volume;
-    if ('time' in firstCandle) scope.time = firstCandle.time;
-    // index é controlado pelo loop, mas pode ser inicializado como 0
-    scope.index = 0;
-  }
+  // Candles
+  scope.candles = candles;
+
+  // Taxa de operação
+  scope.taxa = parseTaxa(scope.taxa ?? 0.001);
+
   // Definir suporte e resistência para os valores iniciais (ajuste temporário)
   if ('delta' in scope && 'close' in scope) {
-    scope.suporte = scope.close - scope.delta;
-    scope.resistencia = scope.close + scope.delta;
+    scope.suporte = candles[0].close - scope.delta;
+    scope.resistencia = candles[0].close + scope.delta;
   }
 
+  // Funções
+  scope.buy = () => buy(scope);
 
+
+  // 🔁 LOOP PRINCIPAL
+  for (let i = 1; i < candles.length; i++) {
+    scope.index = 1;
+
+    // Atualiza variáveis do candle no escopo
+    const candle = candles[i];
+    scope.atual = candle;
+    scope.anterior = candles[i - 1];
+    scope.index = i;
+    scope.time = candle.time;
+    scope.close = candle.close;
+    scope.open = candle.open;
+    scope.high = candle.high;
+    scope.low = candle.low;
+    scope.volume = candle.volume;
+
+    // Inicializa op para esta iteração
+    scope.op = {
+      type: "none",
+      timestamp: candle.time,
+      price: candle.close,
+      qty: 0,
+      descr: "",
+      R: scope.resistencia,
+      S: scope.suporte,
+    };
+
+    // [TODO] Atualizar campos computed (expr) no escopo
+
+    // [TODO] Avaliar condições das regras e executar ações
+
+    // [TODO] Gravar operação no array de operações
+
+    // [TODO] Qualquer lógica extra de controle/estatística
+  }
+
+  // [TODO] Retornar resultados finais da simulação
   //
   // Testando até aqui!
   //
+
   console.clear();
   console.log('initialScope', scope);
   return null;
 
   /*
-  // Taxa de operação
-  const taxa = parseTaxa(config.init.taxa ?? 0.001);
 
   // Lista para armazenar operações realizadas
   const operations: Operation[] = [];
