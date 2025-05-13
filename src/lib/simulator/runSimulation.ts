@@ -108,54 +108,54 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   const { candles, strategyData: strategy } = params;
 
   // 🧪 INICIALIZAÇÃO
-  // Validação da estrutura da configuração
-  if (!strategy.init || typeof strategy.init !== 'object') {
-    console.error("❌ Configuração inválida: campo 'init' é obrigatório.");
-    return null;
-  }
-  if (!Array.isArray(strategy.rules)) {
-    console.error("❌ Configuração inválida: campo 'estrategia' deve ser uma lista.");
-    return null;
-  }
 
-  // Configuração dos valores iniciais
-  let init: Record<string, any> = {};
-  for (const field of strategy.init) {
-    init[field.name as string] = field.value;
-  }
+  // Monta o escopo inicial a partir de strategy.vars
+  let scope: Record<string, any> = {};
 
-  // Configuração das variáveis de condição
-  let varsCondition: Record<string, any> = {};
-  for (const field of strategy.varsCondition) {
-    if (field.value !== undefined) {
-      varsCondition[field.name] = field.value;
-    } else if (field.expr !== undefined) {
+  for (const v of strategy.vars) {
+    if (v.type === "state" || v.type === "candle") {
+      scope[v.name] = v.value;
+    } else if (v.type === "computed" && v.value !== undefined) {
+      scope[v.name] = v.value;
+    } else if (v.type === "computed" && v.expr) {
       try {
-        varsCondition[field.name] = evalExpr(field.expr, { ...init, ...varsCondition });
+        scope[v.name] = evalExpr(v.expr, scope);
       } catch (e) {
-        console.warn(`❌ Erro ao avaliar expressão para ${field.name}:`, e);
-        varsCondition[field.name] = null; // Valor padrão em caso de erro
+        console.warn(`❌ Erro ao avaliar expressão para ${v.name}:`, e);
+        scope[v.name] = null;
       }
     }
+    // Actions não são inicializadas aqui, só referenciadas depois
   }
 
-  let initialScope = { ...init, ...varsCondition };
-
-  // Definir suporte e resistência para os valores iniciais
-  // ToDo: mudar essa lógica mais pra frente!
-  initialScope.suporte = candles[0].close - initialScope.delta;
-  initialScope.resistencia = candles[0].close + initialScope.delta;
+  // Inicializa candle do primeiro elemento
+  if (candles.length > 0) {
+    const firstCandle = candles[0];
+    // Inicializa manualmente os campos do candle
+    if ('close' in firstCandle) scope.close = firstCandle.close;
+    if ('open' in firstCandle) scope.open = firstCandle.open;
+    if ('high' in firstCandle) scope.high = firstCandle.high;
+    if ('low' in firstCandle) scope.low = firstCandle.low;
+    if ('volume' in firstCandle) scope.volume = firstCandle.volume;
+    if ('time' in firstCandle) scope.time = firstCandle.time;
+    // index é controlado pelo loop, mas pode ser inicializado como 0
+    scope.index = 0;
+  }
+  // Definir suporte e resistência para os valores iniciais (ajuste temporário)
+  if ('delta' in scope && 'close' in scope) {
+    scope.suporte = scope.close - scope.delta;
+    scope.resistencia = scope.close + scope.delta;
+  }
 
 
   //
   // Testando até aqui!
   //
   console.clear();
-  console.log('initialScope', initialScope);
+  console.log('initialScope', scope);
   return null;
 
-
-/*
+  /*
   // Taxa de operação
   const taxa = parseTaxa(config.init.taxa ?? 0.001);
 
@@ -222,9 +222,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 
     operations.push( { ...scope.oper } );
   } // for candle
-  */
-
-  /*
+ 
   // 📊 RESULTADOS DA SIMULAÇÃO
   return {
     initialUSDT: scope.saldoUSDT,
