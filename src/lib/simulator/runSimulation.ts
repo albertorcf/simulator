@@ -40,28 +40,12 @@ function parseTaxa(taxa: number | string): number {
 }
 
 /**
- * Funções desacopladas chamadas nas condições e ações de forma simples, 
- * somente com os parâmetros principais.
+ * Funções desacopladas chamadas nas condições (futuramente) e ações de forma simples.
  * Em scope são criadas (closures) através de funções adaptadoras (wrappers functions),
  * que passam o parâmetro scope para acesso ao contexto dentro da função desacoplada.
+ * ToDo: aceitar parâmetros e returnar um valor
  */
 
-function execReset(scope: any) {
-  const close = scope.atual.close;
-  const delta = scope.delta;
-  scope.resistencia = close + delta;
-  scope.suporte = close - delta;
-
-  scope.oper.R = scope.resistencia;
-  scope.oper.S = scope.suporte;
-}
-
-/**
- * buy()
- * qty     = quantidade de SOL que você quer negociar
- * price   = preço do candle (USDT por SOL)
- * feeRate = 0.001  // 0 ,1 %
- */
 function buy(scope: any) {
   const time   =  scope.time;
   const feeRate = scope.taxa || 0.001;
@@ -72,11 +56,14 @@ function buy(scope: any) {
   const netSOL = qty - feeSOL;     // SOL realmente creditado
   const costUSD = qty * price;     // USDT que sai da conta
 
-  // Atualizar tanto o current quanto o scope
   scope.saldoSOL += netSOL;
   scope.saldoUSDT -= costUSD;
 
+  scope.lastOp = "C";
+  scope.iddleCount = scope.iddleInit;
+
   // ToDo: retornar taxas calculadas para totalização
+  scope.op.type = 'buy';
   scope.op.timestamp = time;
   scope.op.price = price;
   scope.op.qty = netSOL;
@@ -84,25 +71,66 @@ function buy(scope: any) {
   scope.op.S = scope.suporte;
 }
 
-function execSell(qty: number, scope: any) {
-  const atual = scope.atual;
+function sell(scope: any) {
+  const time = scope.time;
   const feeRate = scope.taxa || 0.001;
-  const price = atual.close;
+  const price = scope.close;
+  const qty = scope.qty;
 
   const grossUSD = qty * price;         // USDT que você *receberia*
   const feeUSD = grossUSD * feeRate;    // taxa cobrada em USDT
   const netUSD = grossUSD - feeUSD;     // USDT realmente creditado
 
-  // Atualizar tanto o current quanto o scope
   scope.saldoSOL -= qty;
   scope.saldoUSDT += netUSD;
 
-  // ToDo: retornar taxas calculadas para totalização
-  scope.oper.timestamp = atual.time;
-  scope.oper.price = price;
-  scope.oper.qty = qty;
-  scope.oper.R = scope.resistencia;
-  scope.oper.S = scope.suporte;
+  scope.lastOp = "V";
+  scope.iddleCount = scope.iddleInit;
+
+  scope.op.type = 'sell';
+  scope.op.timestamp = time;
+  scope.op.price = price;
+  scope.op.qty = qty;
+  scope.op.R = scope.resistencia;
+  scope.op.S = scope.suporte;
+}
+
+function reset(scope: any) {
+  const close = scope.close;
+  const delta = scope.delta;
+  scope.resistencia = close + delta;
+  scope.suporte = close - delta;
+
+  scope.candleOp = "R";
+  scope.iddleCount = scope.iddleInit;
+  
+  scope.op.type = 'reset';  // ???
+  scope.op.R = scope.resistencia;
+  scope.op.S = scope.suporte;
+}
+
+function resetR(scope: any) {
+  const close = scope.close;
+  const delta = scope.delta;
+  scope.resistencia = close + delta;
+  
+  scope.candleOp = "R";
+  scope.iddleCount = scope.iddleInit;
+
+  scope.op.type = 'reset';  // ???
+  scope.op.R = scope.resistencia;
+}
+
+function resetS(scope: any) {
+  const close = scope.close;
+  const delta = scope.delta;
+  scope.suporte = close - delta;
+
+  scope.candleOp = "R";
+  scope.iddleCount = scope.iddleInit;
+
+  scope.op.type = 'reset';  // ???
+  scope.op.S = scope.suporte;
 }
 
 //
@@ -146,6 +174,10 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 
   // Funções
   scope.buy = () => buy(scope);
+  scope.sell = () => sell(scope);
+  scope.reset = () => reset(scope);
+  scope.resetR = () => resetR(scope);
+  scope.resetS = () => resetS(scope);
 
 
   // 🔁 LOOP PRINCIPAL
