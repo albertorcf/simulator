@@ -39,15 +39,18 @@ describe('runSimulation', () => {
     };
 
     // Mock para capturar logs do escopo em cada iteração
-    const logs: any[] = [];
-    const originalLog = console.log;
-    console.log = (...args) => logs.push(args);
+    const logs: any[] = [];   // Cria um array vazio para armazenar tudo o que for "logado" durante a execução do teste
+    const originalLog = console.log;  // Salva a função original do console.log para poder restaurar depois.
+    console.log = (...args) => logs.push(args);   // Substitui o console.log por uma função que, ao invés de imprimir no terminal, guarda os argumentos (tudo o que seria impresso) no array logs
 
     runSimulation({ candles, strategyData });
 
     console.log = originalLog; // restaura o log
+    // Depois de rodar a função, devolve o console.log ao seu comportamento normal, para não afetar outros testes ou prints
 
     // O último escopo logado deve ter valorOp = close * qty do último candle
+    // Pega o último log feito durante a execução (normalmente, o escopo do último candle)
+    // Se você faz console.log('scope', scope), o segundo argumento (scope) é o que interessa, por isso pega o índice 1
     const lastScope = logs[logs.length - 1][1];
     expect(lastScope.valorOp).toBe(30 * 2);
   });
