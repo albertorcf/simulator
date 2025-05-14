@@ -21,6 +21,36 @@ describe('runSimulation', () => {
     // Como a função retorna null no final, esperamos null
     expect(result).toBeNull();
   });
+
+  // Testa alguns campos do scope final após o loop
+  // Esse teste é simples e serve para validar o comportamento incremental do loop
+  it('atualiza campos computed (expr) a cada iteração', () => {
+    const candles = [
+      { close: 10, open: 10, high: 10, low: 10, volume: 1, time: 1 },
+      { close: 20, open: 19, high: 21, low: 18, volume: 2, time: 2 },
+      { close: 30, open: 29, high: 31, low: 28, volume: 3, time: 3 }
+    ];
+    const strategyData = {
+      vars: [
+        { name: "close", value: 0, type: "candle" },
+        { name: "qty", value: 2, type: "state" },
+        { name: "valorOp", expr: "close * qty", type: "computed" }
+      ]
+    };
+
+    // Mock para capturar logs do escopo em cada iteração
+    const logs: any[] = [];
+    const originalLog = console.log;
+    console.log = (...args) => logs.push(args);
+
+    runSimulation({ candles, strategyData });
+
+    console.log = originalLog; // restaura o log
+
+    // O último escopo logado deve ter valorOp = close * qty do último candle
+    const lastScope = logs[logs.length - 1][1];
+    expect(lastScope.valorOp).toBe(30 * 2);
+  });
 });
 
 /**

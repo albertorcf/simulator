@@ -232,7 +232,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   //
 
   console.clear();
-  console.log('initialScope', scope);
+  console.log('scope', scope);
   return null;
 
   /*
