@@ -207,7 +207,17 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
       S: scope.suporte,
     };
 
-    // [TODO] Atualizar campos computed (expr) no escopo
+    // Atualiza campos computed (expr) no escopo
+    for (const v of strategy.vars) {
+      if (v.type === "computed" && v.expr) {
+        try {
+          scope[v.name] = evalExpr(v.expr, scope);
+        } catch (e) {
+          console.warn(`❌ Erro ao avaliar expressão para ${v.name}:`, e);
+          scope[v.name] = null;
+        }
+      }
+    }
 
     // [TODO] Avaliar condições das regras e executar ações
 
