@@ -301,3 +301,6 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   };
   */
 }
+
+// Exportar as funções auxiliares para testes
+export { buy, sell, reset, resetR, resetS };
