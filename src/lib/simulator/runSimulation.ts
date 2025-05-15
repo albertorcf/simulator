@@ -1,6 +1,7 @@
 // frontend/src/lib/simulator/runSimulation.ts
 import { evalExpr, runExpr } from "@/utils/evalExpr";
 import { Candle } from '@/types/types';
+import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
 
 export type RunSimulationParams = {
   candles: Candle[];
@@ -25,9 +26,9 @@ export type SimulationResult = {
   operations: Operation[];
 };
 
-/**
- * Helpers
- */
+// ───────────────────────────────────────────────────────────────────
+// Helpers
+// ───────────────────────────────────────────────────────────────────
 
 // Função para converter a taxa
 function parseTaxa(taxa: number | string): number {
@@ -37,6 +38,73 @@ function parseTaxa(taxa: number | string): number {
     return parseFloat(taxa) / 100;
   }
   throw new Error("Taxa inválida!");
+}
+
+// Avaliador recursivo de RuleGroupType/RuleGroupTypeAny para condições de estratégia
+// Pode usar RuleGroupTypeAny para máxima flexibilidade, mas se suas regras seguem sempre o padrão do RuleGroupType,
+// não há problema em usar RuleGroupType. O uso de RuleGroupTypeAny só é necessário se você espera regras
+// aninhadas ou formatos mistos vindos de diferentes fontes ou do usuário.
+
+/**
+ * Avalia um RuleGroupType ou RuleGroupTypeAny sobre o escopo fornecido.
+ * Retorna true se a condição for satisfeita, false caso contrário.
+ Exemplo de group:
+ {
+   combinator: "or",
+   rules: [
+     { field: "index", operator: "=", valueSource: "value", value: 1 },
+     {
+       combinator: "and",
+       rules: [
+         { field: "close",     operator: "<=", valueSource: "field", value: "suporte" },
+         { field: "saldoUSDT", operator: ">=", valueSource: "field", value: "valorOp" },
+         { field: "lastOp",    operator: "==", valueSource: "value", value: "V" }
+       ]
+     }
+   ]
+ } satisfies RuleGroupType,
+ */
+export function evaluateRuleGroup(
+  group: RuleGroupType | RuleGroupTypeAny,
+  scope: any
+): boolean {
+  const results = group.rules.map(rule => {
+    // Ignora strings (comentários ou placeholders)
+    if (typeof rule !== "object" || rule === null) {
+      return true; // ou false, dependendo da sua lógica (true ignora, false bloqueia)
+    }
+    if ('combinator' in rule && rule.rules) {
+      // Subgrupo (regra composta), avalia recursivamente!
+      return evaluateRuleGroup(rule as RuleGroupTypeAny, scope);
+    } else {
+      // Regra simples
+      const left = 'field' in rule ? scope[rule.field] : undefined;
+      const right =
+        'valueSource' in rule && rule.valueSource === "field"
+          ? scope[rule.value]
+          : 'value' in rule ? rule.value : undefined;
+      if ('operator' in rule) {
+        switch (rule.operator) {
+        case "=":  return left == right;
+        case "==": return left == right;
+        case "!=": return left != right;
+        case ">":  return left > right;
+        case ">=": return left >= right;
+        case "<":  return left < right;
+        case "<=": return left <= right;
+        default:   return false;
+        }
+      } else {
+        return false; // Handle cases where rule is not a simple rule
+      }
+    }
+  });
+
+  if (group.combinator === "and") {
+    return results.every(Boolean);
+  } else {
+    return results.some(Boolean);
+  }
 }
 
 // ───────────────────────────────────────────────────────────────────

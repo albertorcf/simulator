@@ -56,6 +56,45 @@ describe('runSimulation', () => {
   });
 });
 
+
+/**
+ * Teste da function evaluateRuleGroup
+ */
+
+import { evaluateRuleGroup } from './runSimulation';
+import type { RuleGroupTypeAny } from 'react-querybuilder';
+
+describe('evaluateRuleGroup', () => {
+  it('deve avaliar corretamente a condição de compra (buy)', () => {
+    const buyCondition: RuleGroupTypeAny = {
+      combinator: "or",
+      rules: [
+        { field: "index", operator: "=", valueSource: "value", value: 1 },
+        {
+          combinator: "and",
+          rules: [
+            { field: "close", operator: "<=", valueSource: "field", value: "suporte" },
+            { field: "saldoUSDT", operator: ">=", valueSource: "field", value: "valorOp" },
+            { field: "lastOp", operator: "==", valueSource: "value", value: "V" }
+          ]
+        }
+      ]
+    };
+
+    const scope = {
+      index: 2,
+      close: 10,
+      suporte: 11,
+      saldoUSDT: 100,
+      valorOp: 50,
+      lastOp: "V"
+    };
+
+    expect(evaluateRuleGroup(buyCondition, scope)).toBe(true);
+  });
+});
+
+
 /**
  * Testes unitários básicos para as funções buy, sell, reset, resetR e resetS.
  * 
@@ -107,6 +146,7 @@ describe('Funções de operação do simulador', () => {
 
   it('reset deve atualizar suporte e resistência', () => {
     scope.close = 20;
+    scope.candleOp = "I";
     reset(scope);
     expect(scope.resistencia).toBe(22);
     expect(scope.suporte).toBe(18);
@@ -115,6 +155,7 @@ describe('Funções de operação do simulador', () => {
 
   it('resetR deve atualizar apenas resistência', () => {
     scope.close = 30;
+    scope.candleOp = "I";
     resetR(scope);
     expect(scope.resistencia).toBe(32);
     expect(scope.candleOp).toBe("R");
@@ -122,6 +163,7 @@ describe('Funções de operação do simulador', () => {
 
   it('resetS deve atualizar apenas suporte', () => {
     scope.close = 40;
+    scope.candleOp = "I";
     resetS(scope);
     expect(scope.suporte).toBe(38);
     expect(scope.candleOp).toBe("R");
