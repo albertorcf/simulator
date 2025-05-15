@@ -44,6 +44,7 @@ export const baseStrategy = {
     {
       type: "sell",
       descr: "VENDA se o preço romper resistência",
+
       condition: {
         combinator: "and",
         rules: [
@@ -52,6 +53,7 @@ export const baseStrategy = {
           { field: "lastOp",   operator: "==", valueSource: "value", value: "C" }
         ]
       } satisfies RuleGroupType,
+      
       action: {
         combinator: "and",
         rules: [
@@ -63,6 +65,7 @@ export const baseStrategy = {
     {
       type: "buy",
       descr: "COMPRA se o preço cair abaixo do suporte",
+
       condition: {
         combinator: "or",
         rules: [
@@ -77,6 +80,7 @@ export const baseStrategy = {
           }
         ]
       } satisfies RuleGroupType,
+
       action: {
         combinator: "and",
         rules: [
@@ -88,12 +92,14 @@ export const baseStrategy = {
     {
       type: "reset",
       descr: "RESET se tempo inativo for alto",
+
       condition: {
         combinator: "and",
         rules: [
           { field: "iddleCount", operator: "<=", valueSource: "value", value: 0 }
         ]
       } satisfies RuleGroupType,
+
       action: {
         combinator: "and",
         rules: [

@@ -189,9 +189,9 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   scope.resetR = () => resetR(scope);
   scope.resetS = () => resetS(scope);
 
-  // ─────────────────────────────────
-  // ─────── 🔁 LOOP PRINCIPAL ───────
-  // ─────────────────────────────────
+  // ─────────────────────────────────────────
+  // ─────────── 🔁 LOOP PRINCIPAL ───────────
+  // ─────────────────────────────────────────
   for (let i = 1; i < candles.length; i++) {
     scope.index = 1;
 
@@ -237,8 +237,8 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     // [TODO] Gravar operação no array de operações
 
     // [TODO] Qualquer lógica extra de controle/estatística
-    
-  } // loop principal
+
+  } // END loop principal
 
   // [TODO] Retornar resultados finais da simulação
   //
