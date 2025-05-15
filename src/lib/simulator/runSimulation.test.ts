@@ -94,6 +94,32 @@ describe('evaluateRuleGroup', () => {
   });
 });
 
+import { ruleGroupToString } from './runSimulation';
+
+describe('ruleGroupToString', () => {
+  it('deve montar a expressão string corretamente para uma condição aninhada', () => {
+    const buyCondition: RuleGroupTypeAny = {
+      combinator: "or",
+      rules: [
+        { field: "index", operator: "=", valueSource: "value", value: 1 },
+        {
+          combinator: "and",
+          rules: [
+            { field: "close", operator: "<=", valueSource: "field", value: "suporte" },
+            { field: "saldoUSDT", operator: ">=", valueSource: "field", value: "valorOp" },
+            { field: "lastOp", operator: "==", valueSource: "value", value: "V" }
+          ]
+        }
+      ]
+    };
+
+    const expr = ruleGroupToString(buyCondition);
+    expect(expr.replace(/\s+/g, ' ')).toBe(
+      '(index = 1 or (close <= suporte and saldoUSDT >= valorOp and lastOp == "V"))'
+    );
+  });
+});
+
 
 /**
  * Testes unitários básicos para as funções buy, sell, reset, resetR e resetS.

@@ -107,6 +107,22 @@ export function evaluateRuleGroup(
   }
 }
 
+export function ruleGroupToString(group: RuleGroupTypeAny): string {
+  return '(' + group.rules.map(rule => {
+    if (typeof rule !== "object" || rule === null) return '';
+    if ('combinator' in rule && rule.rules) {
+      return ruleGroupToString(rule as RuleGroupTypeAny);
+    } else {
+      const left = 'field' in rule ? rule.field : undefined;
+      const op = 'operator' in rule ? rule.operator : undefined;
+      const right = 'valueSource' in rule && rule.valueSource === "field" 
+              ? rule.value 
+              : 'value' in rule ? JSON.stringify(rule.value) : undefined;
+      return `${left} ${op} ${right}`;
+    }
+  }).filter(Boolean).join(` ${group.combinator} `) + ')';
+}
+
 // ───────────────────────────────────────────────────────────────────
 // Funções desacopladas chamadas nas condições (futuramente) e ações de forma simples.
 // Em scope são criadas (closures) através de funções adaptadoras (wrappers functions),
