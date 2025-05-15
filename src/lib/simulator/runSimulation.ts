@@ -107,6 +107,9 @@ export function evaluateRuleGroup(
   }
 }
 
+/**
+ * 
+ */
 export function ruleGroupToString(group: RuleGroupTypeAny): string {
   return '(' + group.rules.map(rule => {
     if (typeof rule !== "object" || rule === null) return '';
