@@ -102,7 +102,7 @@ function reset(scope: any) {
   scope.suporte = close - delta;
 
   scope.candleOp = "R";
-  scope.iddleCount = scope.iddleInit;
+  scope.iddleCount = scope.iddleInit;  // zera contador de iterações iddle
   
   scope.op.type = 'reset';  // ???
   scope.op.R = scope.resistencia;
