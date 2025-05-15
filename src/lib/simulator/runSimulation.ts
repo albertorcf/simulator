@@ -39,12 +39,13 @@ function parseTaxa(taxa: number | string): number {
   throw new Error("Taxa inválida!");
 }
 
-/**
- * Funções desacopladas chamadas nas condições (futuramente) e ações de forma simples.
- * Em scope são criadas (closures) através de funções adaptadoras (wrappers functions),
- * que passam o parâmetro scope para acesso ao contexto dentro da função desacoplada.
- * ToDo: aceitar parâmetros e returnar um valor
- */
+// ───────────────────────────────────────────────────────────────────
+// Funções desacopladas chamadas nas condições (futuramente) e ações de forma simples.
+// Em scope são criadas (closures) através de funções adaptadoras (wrappers functions),
+// que passam o parâmetro scope para acesso ao contexto dentro da função desacoplada.
+// ToDo: aceitar parâmetros e returnar um valor
+// ───────────────────────────────────────────────────────────────────
+
 
 function buy(scope: any) {
   const time   =  scope.time;
@@ -60,6 +61,7 @@ function buy(scope: any) {
   scope.saldoUSDT -= costUSD;
 
   scope.lastOp = "C";
+  scope.candleOp = "C";
   scope.iddleCount = scope.iddleInit;
 
   // ToDo: retornar taxas calculadas para totalização
@@ -85,6 +87,7 @@ function sell(scope: any) {
   scope.saldoUSDT += netUSD;
 
   scope.lastOp = "V";
+  scope.candleOp = "V";
   scope.iddleCount = scope.iddleInit;
 
   scope.op.type = 'sell';
@@ -101,8 +104,10 @@ function reset(scope: any) {
   scope.resistencia = close + delta;
   scope.suporte = close - delta;
 
-  scope.candleOp = "R";
-  scope.iddleCount = scope.iddleInit;  // zera contador de iterações iddle
+  if (scope.candleOp === 'I') {
+    scope.candleOp = "R";
+  }
+  scope.iddleCount = scope.iddleInit;  // zera contador de iterações iddle (inativas)
   
   scope.op.type = 'reset';  // ???
   scope.op.R = scope.resistencia;
@@ -114,7 +119,9 @@ function resetR(scope: any) {
   const delta = scope.delta;
   scope.resistencia = close + delta;
   
-  scope.candleOp = "R";
+  if (scope.candleOp === 'I') {
+    scope.candleOp = "R";
+  }
   scope.iddleCount = scope.iddleInit;
 
   scope.op.type = 'reset';  // ???
@@ -126,15 +133,18 @@ function resetS(scope: any) {
   const delta = scope.delta;
   scope.suporte = close - delta;
 
-  scope.candleOp = "R";
+  if (scope.candleOp === 'I') {
+    scope.candleOp = "R";
+  }
   scope.iddleCount = scope.iddleInit;
 
   scope.op.type = 'reset';  // ???
   scope.op.S = scope.suporte;
 }
 
-//
-// —————————————runSimulation———————————————
+// ───────────────────────────────────────────────────────────────────
+// ────────────────────────── runSimulation ──────────────────────────
+// ───────────────────────────────────────────────────────────────────
 //
 export function runSimulation(params: RunSimulationParams): SimulationResult | null {
   const { candles, strategyData: strategy } = params;
@@ -179,8 +189,9 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   scope.resetR = () => resetR(scope);
   scope.resetS = () => resetS(scope);
 
-
-  // 🔁 LOOP PRINCIPAL
+  // ─────────────────────────────────
+  // ─────── 🔁 LOOP PRINCIPAL ───────
+  // ─────────────────────────────────
   for (let i = 1; i < candles.length; i++) {
     scope.index = 1;
 
@@ -219,12 +230,15 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
       }
     }
 
+    scope.candleOp = 'I';   // Inicializa candle op para iddle (inativo)
+
     // [TODO] Avaliar condições das regras e executar ações
 
     // [TODO] Gravar operação no array de operações
 
     // [TODO] Qualquer lógica extra de controle/estatística
-  }
+    
+  } // loop principal
 
   // [TODO] Retornar resultados finais da simulação
   //
