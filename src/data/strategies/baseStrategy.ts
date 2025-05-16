@@ -6,7 +6,7 @@ export const baseStrategy = {
   vars: [
     // State
     { name: "saldoUSDT", value: 100, type: "state" },
-    { name: "saldoSOL", value: 0.1, type: "state" },
+    { name: "saldoSOL", value: 1, type: "state" },
     { name: "delta", value: 1, type: "state" },
     { name: "qty", value: 0.1, type: "state" },
     { name: "taxa", value: 0.001, type: "state" },
@@ -53,7 +53,7 @@ export const baseStrategy = {
           { field: "lastOp",   operator: "==", valueSource: "value", value: "C" }
         ]
       } satisfies RuleGroupType,
-      
+
       action: {
         combinator: "and",
         rules: [

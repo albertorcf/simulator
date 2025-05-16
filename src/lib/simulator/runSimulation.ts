@@ -249,6 +249,7 @@ function resetS(scope: any) {
 //
 export function runSimulation(params: RunSimulationParams): SimulationResult | null {
   const { candles, strategyData: strategy } = params;
+  if (!candles || candles.length < 2) return null;
 
   // ─────────────────────────────────────────
   // ─────────── 🧪 INICIALIZAÇÃO ────────────
@@ -292,6 +293,13 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   scope.resetR = () => resetR(scope);
   scope.resetS = () => resetS(scope);
 
+  // Array de operações por candle
+  const operations: Operation[] = [];
+
+  // Saldos iniciais
+  const saldoSOLinit = scope.saldoSOL;
+  const saldoUSDTinit = scope.saldoUSDT;
+
   // ─────────────────────────────────────────
   // ─────────── 🔁 LOOP PRINCIPAL ───────────
   // ─────────────────────────────────────────
@@ -333,25 +341,53 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
       }
     }
 
+    // Inicializa demais variáveis no loop
     scope.candleOp = 'I';   // Inicializa candle op para iddle (inativo)
 
-    // [TODO] Avaliar condições das regras e executar ações
+    // ───── Avaliar condições das regras e executar ações ─────
+    for (const rule of strategy.rules) {
+      // Avalia a condição da regra usando a função recursiva
+      if (evaluateRuleGroup(rule.condition, scope)) {
+        // Executa todas as ações da regra (pode ser uma ou várias)
+        if (rule.action && Array.isArray(rule.action.rules)) {
+          for (const actionRule of rule.action.rules) {
+            if (typeof actionRule.field === "string" && actionRule.field.endsWith("()")) {
+              // Chama a função correspondente no escopo (ex: buy(), sell(), reset())
+              const fnName = actionRule.field.replace("()", "");
+              if (typeof scope[fnName] === "function") {
+                scope[fnName]();
+              }
+            } else if (typeof actionRule.field === "string") {
+              // Caso queira suportar atribuições diretas no futuro
+              scope[actionRule.field] = actionRule.value;
+            }
+          }
+        }
+        // Permite customizar se deve parar o loop de regras ou não após executar a regra atual
+        if (rule.break !== false) break;      }
+    }
 
-    // [TODO] Gravar operação no array de operações
-
+    // Gravar operação no array de operações
+    // [TODO] Retornar operações "none"???
+    if (scope.op.type !== "none") {
+      operations.push({ ...scope.op });
+    }
+    
     // [TODO] Qualquer lógica extra de controle/estatística
 
-  } // END loop principal
+  } // END loop principal para cada candle
 
-  // [TODO] Retornar resultados finais da simulação
-  //
-  // Testando até aqui!
-  //
-
+  // Retornar resultados finais da simulação
   console.clear();
   console.log('scope', scope);
-  return null;
-
+  return {
+    initialUSDT: saldoUSDTinit,
+    initialSOL: saldoSOLinit,
+    finalUSDT: scope.saldoUSDT,
+    finalSOL: scope.saldoSOL,
+    operations,
+  };
+  
   /*
 
   // Lista para armazenar operações realizadas

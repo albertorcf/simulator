@@ -1,4 +1,12 @@
-import { runSimulation } from './runSimulation';
+import type { RuleGroupTypeAny } from 'react-querybuilder';
+import { baseStrategy } from '../../data/strategies/baseStrategy';
+import { 
+  runSimulation, 
+  evaluateRuleGroup, 
+  ruleGroupToString 
+} from './runSimulation';
+import { buy, sell, reset, resetR, resetS } from './runSimulation';
+
 
 describe('runSimulation', () => {
   it('deve retornar null se não houver candles', () => {
@@ -15,11 +23,13 @@ describe('runSimulation', () => {
       vars: [
         { name: "saldoUSDT", value: 100, type: "state" },
         { name: "close", value: 0, type: "candle" }
-      ]
+      ],
+      rules: [] // Corrigido: adiciona rules vazio para evitar erro de iteração
     };
     const result = runSimulation({ candles, strategyData });
-    // Como a função retorna null no final, esperamos null
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(typeof result).toBe('object');
+    expect(Array.isArray(result!.operations)).toBe(true);
   });
 
   // Testa alguns campos do scope final após o loop
@@ -35,7 +45,8 @@ describe('runSimulation', () => {
         { name: "close", value: 0, type: "candle" },
         { name: "qty", value: 2, type: "state" },
         { name: "valorOp", expr: "close * qty", type: "computed" }
-      ]
+      ],
+      rules: [] // Corrigido: adiciona rules vazio para evitar erro de iteração
     };
 
     // Mock para capturar logs do escopo em cada iteração
@@ -60,9 +71,6 @@ describe('runSimulation', () => {
 /**
  * Teste da function evaluateRuleGroup
  */
-
-import { evaluateRuleGroup } from './runSimulation';
-import type { RuleGroupTypeAny } from 'react-querybuilder';
 
 describe('evaluateRuleGroup', () => {
   it('deve avaliar corretamente a condição de compra (buy)', () => {
@@ -94,8 +102,9 @@ describe('evaluateRuleGroup', () => {
   });
 });
 
-import { ruleGroupToString } from './runSimulation';
-
+/**
+ * 
+ */
 describe('ruleGroupToString', () => {
   it('deve montar a expressão string corretamente para uma condição aninhada', () => {
     const buyCondition: RuleGroupTypeAny = {
@@ -120,7 +129,6 @@ describe('ruleGroupToString', () => {
   });
 });
 
-
 /**
  * Testes unitários básicos para as funções buy, sell, reset, resetR e resetS.
  * 
@@ -128,8 +136,6 @@ describe('ruleGroupToString', () => {
  * - Sempre escreva e rode os testes ao implementar novas funções!
  * - Estes testes são exemplos simples para garantir que as funções principais do simulador funcionam isoladamente.
  */
-
-import { buy, sell, reset, resetR, resetS } from './runSimulation';
 
 describe('Funções de operação do simulador', () => {
   let scope: any;
@@ -193,5 +199,35 @@ describe('Funções de operação do simulador', () => {
     resetS(scope);
     expect(scope.suporte).toBe(38);
     expect(scope.candleOp).toBe("R");
+  });
+});
+
+/**
+ * Testa se o runSimulation preenche corretamente o array de operações
+ * ao executar uma estratégia real (baseStrategy) com candles que forçam
+ * uma operação de compra (buy) e depois uma de venda (sell).
+ * Verifica se as operações relevantes (buy/sell) estão presentes,
+ * na ordem correta e com os preços esperados.
+ */
+describe('runSimulation - operações', () => {
+  it('deve registrar operações buy e sell corretamente', () => {
+    const candles = [
+      { close: 10, open: 10, high: 10, low: 10, volume: 1, time: 1 },
+      { close: 8, open: 10, high: 10, low: 8, volume: 2, time: 2 },   // buy esperado
+      { close: 12, open: 8, high: 12, low: 8, volume: 3, time: 3 },   // sell esperado
+    ];
+    const result = runSimulation({ candles, strategyData: baseStrategy });
+
+    // Espera pelo menos duas operações relevantes: buy e sell
+    expect(result).not.toBeNull();
+    expect(Array.isArray(result!.operations)).toBe(true);
+
+    const ops = result!.operations.filter(op => op.type === "buy" || op.type === "sell");
+    expect(ops.length).toBeGreaterThanOrEqual(2);
+
+    expect(ops[0].type).toBe("buy");
+    expect(ops[0].price).toBe(8);
+    expect(ops[1].type).toBe("sell");
+    expect(ops[1].price).toBe(12);
   });
 });
