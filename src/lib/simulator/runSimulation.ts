@@ -250,7 +250,9 @@ function resetS(scope: any) {
 export function runSimulation(params: RunSimulationParams): SimulationResult | null {
   const { candles, strategyData: strategy } = params;
 
-  // 🧪 INICIALIZAÇÃO
+  // ─────────────────────────────────────────
+  // ─────────── 🧪 INICIALIZAÇÃO ────────────
+  // ─────────────────────────────────────────
 
   // Monta o escopo inicial a partir de strategy.vars
   let scope: Record<string, any> = {};
