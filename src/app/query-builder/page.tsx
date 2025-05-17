@@ -6,7 +6,14 @@ import { QueryBuilderEditor, Listbox } from "visual-editor";
 
 // Carrega a estratégia de exemplo
 import { baseStrategy } from "@/data/strategies/baseStrategy";
-const { init, varsCondition, varsAction, rules } = baseStrategy;
+const { vars, rules } = baseStrategy;
+
+// Separe as variáveis por tipo
+const init = vars.filter(v => v.type === "state" || v.type === "candle");
+const varsCondition = vars.filter(v => v.type === "computed" && !v.name.endsWith("()"));
+const varsAction = vars.filter(v => v.type === "action");
+
+console.log('vars =', vars)
 console.log('init =', init)
 console.log('varsCondition =', varsCondition)
 console.log('varsAction =', varsAction)
