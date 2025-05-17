@@ -12,6 +12,8 @@ import { SimulationControls } from "@/components/SimulationControls";
 import { fetchBinanceCandles } from "@/utils/candles";
 import { baseStrategy } from "@/data/strategies/baseStrategy";
 import { useApexOptions } from "@/hooks/useApexOptions";
+import { QueryBuilderEditor, Listbox } from "visual-editor";
+import { RuleGroupType } from "react-querybuilder";
 
 export default function TestePage() {
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -35,6 +37,42 @@ export default function TestePage() {
   const cancelRef = useRef(false);
 
   const operationsRef = useRef<Operation[] | null>(null);
+
+  const { rules, vars } = baseStrategy;
+  const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
+
+  // Gerencie o estado da regra selecionada
+  const [condQuery, setCondQuery] = useState<RuleGroupType>(
+    rules[selectedRuleIndex].condition
+  );
+  const [actionQuery, setActionQuery] = useState<RuleGroupType>(
+    rules[selectedRuleIndex].action
+  );
+
+  useEffect(() => {
+    setCondQuery(rules[selectedRuleIndex].condition);
+    setActionQuery(rules[selectedRuleIndex].action);
+  }, [selectedRuleIndex]);
+
+  // Função para atualizar a regra ao trocar de seleção
+  function handleSelectRule(newIndex: number) {
+    // Atualiza a regra atual com as edições feitas
+    rules[selectedRuleIndex].condition = condQuery as any;
+    rules[selectedRuleIndex].action = actionQuery as any;
+    setSelectedRuleIndex(newIndex);
+  }
+
+  // Função para montar os campos do editor
+  function buildFieldList(rawFields: string[]) {
+    return rawFields.map((name) => ({
+      name,
+      label: name,
+      valueSources: name.endsWith("()") ? ['value'] : ['value', 'field'],
+    }));
+  }
+  const init = vars.filter(v => v.type === "state" || v.type === "candle");
+  const varsCondition = vars.filter(v => v.type === "computed" && !v.name.endsWith("()"));
+  const varsAction = vars.filter(v => v.type === "action");
 
   // ─── helper para “dormir” ────────────────────────────
   const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -310,13 +348,51 @@ export default function TestePage() {
 
           </div>
 
-          {/* Caixa de texto para edição da estratégia */}
-          <textarea
-            value={estrategiaTexto}
-            onChange={(e) => setEstrategiaTexto(e.target.value)}
-            spellCheck={false}
-            className="mt-2 w-full h-68 p-2 border rounded font-mono text-sm"
-          />
+          {/* Edição da estratégia */}
+          <div className="flex flex-col lg:flex-row gap-6 mb-4 w-full">
+            
+            {/* Listbox de regras */}
+            <div className="flex-1">
+              <h2 className="mb-1 font-semibold">Regras</h2>
+              <Listbox
+                className="rounded border bg-white h-37"
+                items={rules.map((r) => r.descr)}
+                selectedIndex={selectedRuleIndex}
+                onSelect={handleSelectRule}
+              />
+            </div>
+
+            {/* Editor de Condição */}
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold mb-1">Editor de Condição</h2>
+              <QueryBuilderEditor
+                fields={buildFieldList([
+                  ...init.map((v) => v.name),
+                  ...varsCondition.map((v) => v.name)
+                ])}
+                query={condQuery}
+                onQueryChange={setCondQuery}
+              />
+            </div>
+
+            {/* Editor de Ação */}
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold mb-1">Editor de Ação</h2>
+              <QueryBuilderEditor
+                fields={buildFieldList([
+                  ...init.map((v) => v.name),
+                  ...varsAction.map((v) => v.name)
+                ])}
+                query={actionQuery}
+                onQueryChange={setActionQuery}
+                className="bg-red-50"
+                operators={[
+                  { name: "=", label: "=" },
+                  // outros operadores se quiser
+                ]}
+              />
+            </div>
+          </div>
 
 
         </section>
