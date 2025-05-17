@@ -383,6 +383,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     //}
     
     // [TODO] Qualquer lógica extra de controle/estatística
+    if (scope.candleOp === 'I') scope.iddleCount--;
 
   } // END loop principal para cada candle
 
