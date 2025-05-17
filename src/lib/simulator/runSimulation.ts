@@ -27,7 +27,7 @@ export type SimulationResult = {
 };
 
 // ───────────────────────────────────────────────────────────────────
-// Helpers
+// ✅ Helpers
 // ───────────────────────────────────────────────────────────────────
 
 // Função para converter a taxa
@@ -205,12 +205,12 @@ function reset(scope: any) {
   scope.resistencia = close + delta;
   scope.suporte = close - delta;
 
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-  }
   scope.iddleCount = scope.iddleInit;  // zera contador de iterações iddle (inativas)
   
-  scope.op.type = 'reset';  // ???
+  if (scope.candleOp === 'I') {
+    scope.candleOp = "R";
+    scope.op.type = 'reset';
+  }
   scope.op.R = scope.resistencia;
   scope.op.S = scope.suporte;
 }
@@ -220,12 +220,12 @@ function resetR(scope: any) {
   const delta = scope.delta;
   scope.resistencia = close + delta;
   
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-  }
   scope.iddleCount = scope.iddleInit;
 
-  scope.op.type = 'reset';  // ???
+  if (scope.candleOp === 'I') {
+    scope.candleOp = "R";
+    scope.op.type = 'reset';
+  }
   scope.op.R = scope.resistencia;
 }
 
@@ -234,12 +234,12 @@ function resetS(scope: any) {
   const delta = scope.delta;
   scope.suporte = close - delta;
 
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-  }
   scope.iddleCount = scope.iddleInit;
 
-  scope.op.type = 'reset';  // ???
+  if (scope.candleOp === 'I') {
+    scope.candleOp = "R";
+    scope.op.type = 'reset';
+  }
   scope.op.S = scope.suporte;
 }
 
@@ -294,7 +294,15 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   scope.resetS = () => resetS(scope);
 
   // Array de operações por candle
-  const operations: Operation[] = [];
+  const operations: Operation[] = [{
+    type: "none",
+    timestamp: candles[0].time,
+    price: candles[0].close,
+    qty: 0,
+    descr: "",
+    R: scope.resistencia,
+    S: scope.suporte,
+  }];
 
   // Saldos iniciais
   const saldoSOLinit = scope.saldoSOL;
@@ -304,8 +312,6 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   // ─────────── 🔁 LOOP PRINCIPAL ───────────
   // ─────────────────────────────────────────
   for (let i = 1; i < candles.length; i++) {
-    scope.index = 1;
-
     // Atualiza variáveis do candle no escopo
     const candle = candles[i];
     scope.atual = candle;
@@ -363,22 +369,27 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
             }
           }
         }
-        // Permite customizar se deve parar o loop de regras ou não após executar a regra atual
-        if (rule.break !== false) break;      }
+        // Permite customizar se deve parar o loop de regras, ou não, após validar a regra atual
+        // Incluir campo break: false se quiser seguir adiante nas validações em qualquer caso
+        // Ex.: após um sell não vai testar buy e reset
+        if (rule.break !== false) break;
+      }
     }
 
     // Gravar operação no array de operações
     // [TODO] Retornar operações "none"???
-    if (scope.op.type !== "none") {
+    //if (scope.op.type !== "none") {
       operations.push({ ...scope.op });
-    }
+    //}
     
     // [TODO] Qualquer lógica extra de controle/estatística
 
   } // END loop principal para cada candle
 
-  // Retornar resultados finais da simulação
+  // 📊 Resultados finais da simulação
   console.clear();
+  console.log('✅ Resultados');
+  console.log('operations', operations);
   console.log('scope', scope);
   return {
     initialUSDT: saldoUSDTinit,
@@ -387,82 +398,6 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     finalSOL: scope.saldoSOL,
     operations,
   };
-  
-  /*
-
-  // Lista para armazenar operações realizadas
-  const operations: Operation[] = [];
-
-  console.log("✅ INIT carregado:", config.init);
-  console.log("✅ ESTRATÉGIA:", config.estrategia);
-
-
-  // 🗂️ Cria escopo inicial
-  var scope = {
-    init: config.init,
-    candles,
-    oper: {
-      type: "none",
-      timestamp: candles[0].time,
-      price: 0,
-      qty: 0,
-      descr: ''
-    },
-    ...current,
-    index: 0,
-    buy: (qty: number) => {
-      const result = execBuy(qty, scope);
-      return qty;
-    },    
-    sell: (qty: number) => {
-      const result = execSell(qty, scope);
-      return qty;
-    },
-    reset: () => {
-      execReset(scope);
-    },
-  };
-
-  
-  // 🔁 LOOP PRINCIPAL
-  for (let i = 1; i < candles.length; i++) {
-    // Para cada candle
-    scope.anterior = candles[i - 1];
-    scope.atual = candles[i];
-    scope.index = i;
-    scope.timestamp = scope.atual.time;
-
-    scope.oper.type = 'none';
-    scope.oper.timestamp = scope.atual.time,
-    scope.oper.price = scope.atual.close
-
-    // Avalia condições e executa ações
-    for (const regra of config.estrategia) {
-      try {
-        const cond = avaliarCondicao(regra.condicao, scope);
-        if (cond) {
-          scope.oper.type = regra.type;
-          scope.oper.descr = regra.descr;
-          avaliarExpressao(regra.acao, scope);
-        }
-
-      } catch (err) {
-        console.warn(`❌ Erro ao avaliar regra '${regra.descr}':`, err);
-      }
-    }
-
-    operations.push( { ...scope.oper } );
-  } // for candle
- 
-  // 📊 RESULTADOS DA SIMULAÇÃO
-  return {
-    initialUSDT: scope.saldoUSDT,
-    initialSOL: scope.saldoSOL,
-    finalUSDT: scope.saldoUSDT,
-    finalSOL: scope.saldoSOL,
-    //operations
-  };
-  */
 }
 
 // Exportar as funções auxiliares para testes

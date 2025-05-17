@@ -7,7 +7,33 @@ import {
 } from './runSimulation';
 import { buy, sell, reset, resetR, resetS } from './runSimulation';
 
+// Desabilita console.log para todos os testes deste arquivo
+/*
+    enableConsoleLog();     // Restaura o log original só para este teste
+    try {
+      // ... teste ...
+     } finally {
+      disableConsoleLog();  // Desabilita o log novamente após o teste
+    }
+*/
+const originalLog = console.log;
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => { });
+});
 
+afterAll(() => {
+  (console.log as jest.Mock).mockRestore();
+});
+
+function enableConsoleLog() {
+  (console.log as jest.Mock).mockRestore();
+}
+
+function disableConsoleLog() {
+  jest.spyOn(console, 'log').mockImplementation(() => { });
+}
+
+// Testes
 describe('runSimulation', () => {
   it('deve retornar null se não houver candles', () => {
     const result = runSimulation({ candles: [], strategyData: { vars: [] } });
@@ -211,23 +237,29 @@ describe('Funções de operação do simulador', () => {
  */
 describe('runSimulation - operações', () => {
   it('deve registrar operações buy e sell corretamente', () => {
-    const candles = [
-      { close: 10, open: 10, high: 10, low: 10, volume: 1, time: 1 },
-      { close: 8, open: 10, high: 10, low: 8, volume: 2, time: 2 },   // buy esperado
-      { close: 12, open: 8, high: 12, low: 8, volume: 3, time: 3 },   // sell esperado
-    ];
-    const result = runSimulation({ candles, strategyData: baseStrategy });
+    //enableConsoleLog();   // Restaura o log original só para este teste
+    //try {
+      const candles = [
+        { close: 10, open: 10, high: 10, low: 10, volume: 1, time: 1 },
+        { close: 8, open: 10, high: 10, low: 8, volume: 2, time: 2 },   // buy esperado
+        { close: 12, open: 8, high: 12, low: 8, volume: 3, time: 3 },   // sell esperado
+      ];
+      
+      const result = runSimulation({ candles, strategyData: baseStrategy });
 
-    // Espera pelo menos duas operações relevantes: buy e sell
-    expect(result).not.toBeNull();
-    expect(Array.isArray(result!.operations)).toBe(true);
+      // Espera pelo menos duas operações relevantes: buy e sell
+      expect(result).not.toBeNull();
+      expect(Array.isArray(result!.operations)).toBe(true);
 
-    const ops = result!.operations.filter(op => op.type === "buy" || op.type === "sell");
-    expect(ops.length).toBeGreaterThanOrEqual(2);
+      const ops = result!.operations.filter(op => op.type === "buy" || op.type === "sell");
+      expect(ops.length).toBeGreaterThanOrEqual(2);
 
-    expect(ops[0].type).toBe("buy");
-    expect(ops[0].price).toBe(8);
-    expect(ops[1].type).toBe("sell");
-    expect(ops[1].price).toBe(12);
+      expect(ops[0].type).toBe("buy");
+      expect(ops[0].price).toBe(8);
+      expect(ops[1].type).toBe("sell");
+      expect(ops[1].price).toBe(12);
+    //} finally {
+    //  disableConsoleLog();  // Desabilita o log novamente após o teste
+    //}
   });
 });
