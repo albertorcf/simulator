@@ -321,51 +321,52 @@ export default function TestePage() {
       <div className="flex flex-col w-full max-w-4xl gap-4">
         
         {/* Bloco de edição da estratégia */}
-        <section className="w-full bg-gray-50">
+        <section className="w-full">
 
           <h2 className="text-xl font-bold mb-2 text-center">⚙️ Estratégia</h2>
 
-          <div className="flex items-center gap-4 mt-1">
-            {/* ▶️ Botão de iniciar */}
-            <button
-              onClick={handleRunButton}
-              className={`text-white py-2 px-4 rounded hover:opacity-90 ${simulando ? "bg-red-600" : "bg-blue-600"}`}
-
-            >
-              {simulando ? "⏹️ Parar Simulação" : "▶️ Iniciar Simulação"}
-            </button>
-
-            {/* ⏱️ Delay em segundos */}
-            <label className="flex items-center gap-2 text-base">
-              Delay (s):
-              <input
-                type="number" step="0.05"
-                min={0}
-                max={1}
-                className="w-24 rounded border px-2 py-2 bg-background"
-                value={delaySec}
-                onChange={e => setDelaySec(parseFloat(e.target.value))}
-              />
-            </label>
-          </div>
-
           {/* Edição da estratégia */}
-          <div className="flex flex-col gap-6 mb-1 mt-2 w-full">
+          <div className="flex flex-col gap-6 w-full">
             
-            {/* Listbox de regras */}
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold">Regras</h2>
-              <Listbox
-                className="rounded border bg-white h-37"
-                items={rules.map((r) => r.descr)}
-                selectedIndex={selectedRuleIndex}
-                onSelect={handleSelectRule}
-              />
+            {/* Linha: Listbox de regras à esquerda, controles à direita */}
+            <div className="flex flex-row gap-4 items-start">
+              <div className="flex-1">
+                <div className="mb-1 text-lg font-semibold">Regras</div>
+                <Listbox
+                  className="rounded border bg-white h-37"
+                  items={rules.map((r) => r.descr)}
+                  selectedIndex={selectedRuleIndex}
+                  onSelect={handleSelectRule}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 mt-8">
+                {/* ▶️ Botão de iniciar */}
+                <button
+                  onClick={handleRunButton}
+                  className={`text-white py-2 px-4 rounded hover:opacity-90 ${simulando ? "bg-red-600" : "bg-blue-600"}`}
+                >
+                  {simulando ? "⏹️ Parar Simulação" : "▶️ Iniciar Simulação"}
+                </button>
+                
+                {/* ⏱️ Delay em segundos */}
+                <label className="flex items-center gap-2 text-base">
+                  Delay (s):
+                  <input
+                    type="number" step="0.05"
+                    min={0}
+                    max={1}
+                    className="w-24 rounded border px-2 py-2 bg-background"
+                    value={delaySec}
+                    onChange={e => setDelaySec(parseFloat(e.target.value))}
+                  />
+                </label>
+              </div>
             </div>
 
             {/* Editor de Condição */}
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold">Condição</h2>
+            <div>
+              <h2 className="text-lg font-semibold mb-1">Editor de Condição</h2>
               <QueryBuilderEditor
                 fields={buildFieldList([
                   ...init.map((v) => v.name),
@@ -377,8 +378,8 @@ export default function TestePage() {
             </div>
 
             {/* Editor de Ação */}
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold">Ação</h2>
+            <div>
+              <h2 className="text-lg font-semibold mb-1">Editor de Ação</h2>
               <QueryBuilderEditor
                 fields={buildFieldList([
                   ...init.map((v) => v.name),
