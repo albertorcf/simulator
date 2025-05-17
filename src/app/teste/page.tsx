@@ -349,7 +349,7 @@ export default function TestePage() {
           </div>
 
           {/* Edição da estratégia */}
-          <div className="flex flex-col lg:flex-row gap-6 mb-4 w-full">
+          <div className="flex flex-col gap-6 mb-4 w-full">
             
             {/* Listbox de regras */}
             <div className="flex-1">
