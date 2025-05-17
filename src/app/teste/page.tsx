@@ -344,7 +344,7 @@ export default function TestePage() {
                 {/* ▶️ Botão de iniciar */}
                 <button
                   onClick={handleRunButton}
-                  className={`text-white py-2 px-4 rounded hover:opacity-90 ${simulando ? "bg-red-600" : "bg-blue-600"}`}
+                  className={`text-white font-semibold py-2 px-4 rounded hover:opacity-90 ${simulando ? "bg-red-400" : "bg-blue-400"}`}
                 >
                   {simulando ? "⏹️ Parar Simulação" : "▶️ Iniciar Simulação"}
                 </button>
