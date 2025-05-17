@@ -284,10 +284,11 @@ export default function TestePage() {
 
   return (
     <main className="flex flex-col items-center justify-center p-4">
-      <h1 className="text-3xl font-bold mb-4">📈 Gráfico SOLUSDT (últimos 7 dias)</h1>
+
+      <h1 className="text-3xl font-bold mb-1">📈 Gráfico SOLUSDT (últimos 7 dias)</h1>
 
       {/* Gráfico de linha com dados de candles */}
-      <div className="w-full max-w-4xl h-[400px] mb-4 px-2">
+      <div className="w-full max-w-4xl h-[400px] mb-1 px-2">
         <ApexChart
           type="line"
           height="100%"
@@ -297,7 +298,7 @@ export default function TestePage() {
         />
       </div>
 
-      <div className="w-full max-w-4xl flex flex-col md:flex-row items-center md:justify-between gap-4 p-4 bg-gray-100 rounded my-2 font-sans">
+      <div className="w-full max-w-4xl flex flex-col md:flex-row items-center md:justify-between gap-2 font-sans">
         {/* ▶️ Simulation Controls */}
         <SimulationControls
           length={candles.length}
@@ -317,11 +318,12 @@ export default function TestePage() {
         </div>
       </div>
 
-      <div className="flex flex-col w-full max-w-4xl gap-4 mt-4">
+      <div className="flex flex-col w-full max-w-4xl gap-4">
+        
         {/* Bloco de edição da estratégia */}
-        <section className="w-full border rounded p-4 shadow-md bg-gray-50">
+        <section className="w-full bg-gray-50">
 
-          <h2 className="text-xl font-bold mb-2 text-center">⚙️ Estratégia de Simulação</h2>
+          <h2 className="text-xl font-bold mb-2 text-center">⚙️ Estratégia</h2>
 
           <div className="flex items-center gap-4 mt-1">
             {/* ▶️ Botão de iniciar */}
@@ -334,7 +336,7 @@ export default function TestePage() {
             </button>
 
             {/* ⏱️ Delay em segundos */}
-            <label className="flex items-center gap-2 text-base mt-1">
+            <label className="flex items-center gap-2 text-base">
               Delay (s):
               <input
                 type="number" step="0.05"
@@ -345,15 +347,14 @@ export default function TestePage() {
                 onChange={e => setDelaySec(parseFloat(e.target.value))}
               />
             </label>
-
           </div>
 
           {/* Edição da estratégia */}
-          <div className="flex flex-col gap-6 mb-4 w-full">
+          <div className="flex flex-col gap-6 mb-1 mt-2 w-full">
             
             {/* Listbox de regras */}
             <div className="flex-1">
-              <h2 className="mb-1 font-semibold">Regras</h2>
+              <h2 className="text-lg font-semibold">Regras</h2>
               <Listbox
                 className="rounded border bg-white h-37"
                 items={rules.map((r) => r.descr)}
@@ -364,7 +365,7 @@ export default function TestePage() {
 
             {/* Editor de Condição */}
             <div className="flex-1">
-              <h2 className="text-lg font-semibold mb-1">Editor de Condição</h2>
+              <h2 className="text-lg font-semibold">Condição</h2>
               <QueryBuilderEditor
                 fields={buildFieldList([
                   ...init.map((v) => v.name),
@@ -377,7 +378,7 @@ export default function TestePage() {
 
             {/* Editor de Ação */}
             <div className="flex-1">
-              <h2 className="text-lg font-semibold mb-1">Editor de Ação</h2>
+              <h2 className="text-lg font-semibold">Ação</h2>
               <QueryBuilderEditor
                 fields={buildFieldList([
                   ...init.map((v) => v.name),
@@ -393,7 +394,6 @@ export default function TestePage() {
               />
             </div>
           </div>
-
 
         </section>
 
