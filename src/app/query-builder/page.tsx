@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// apps/simulator/src/app/query-builder/page.tsx
 "use client";
 import { useState, useEffect, Fragment } from "react";
 import { RuleGroupType } from "react-querybuilder";
