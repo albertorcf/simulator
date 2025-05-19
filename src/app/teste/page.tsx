@@ -63,16 +63,20 @@ export default function TestePage() {
   }
 
   // Função para montar os campos do editor
-  function buildFieldList(rawFields: string[]) {
-    return rawFields.map((name) => ({
-      name,
-      label: name,
-      valueSources: name.endsWith("()") ? ['value'] : ['value', 'field'],
+  function buildFieldList(vars: any[]) {
+    return vars.map(v => ({
+      name: v.name,
+      label: v.name,
+      datatype: v.datatype,
+      descr: v.descr,
+      valueSources: v.name.endsWith("()") ? ['value'] : ['value', 'field'],
     }));
   }
+
   const init = vars.filter(v => v.type === "state" || v.type === "candle");
   const varsCondition = vars.filter(v => v.type === "computed" && !v.name.endsWith("()"));
   const varsAction = vars.filter(v => v.type === "action");
+  //console.log('*** varsAction=', varsAction);
 
   // ─── helper para “dormir” ────────────────────────────
   const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -368,10 +372,7 @@ export default function TestePage() {
             <div>
               <h2 className="text-lg font-semibold mb-1">Editor de Condição</h2>
               <QueryBuilderEditor
-                fields={buildFieldList([
-                  ...init.map((v) => v.name),
-                  ...varsCondition.map((v) => v.name)
-                ])}
+                fields={buildFieldList([...init, ...varsCondition])}
                 query={condQuery}
                 onQueryChange={setCondQuery}
               />
@@ -381,15 +382,13 @@ export default function TestePage() {
             <div>
               <h2 className="text-lg font-semibold mb-1">Editor de Ação</h2>
               <QueryBuilderEditor
-                fields={buildFieldList([
-                  ...init.map((v) => v.name),
-                  ...varsAction.map((v) => v.name)
-                ])}
+                fields={buildFieldList([...init, ...varsAction])}
                 query={actionQuery}
                 onQueryChange={setActionQuery}
                 className="bg-red-50"
                 operators={[
                   { name: "=", label: "=" },
+                  { name: "function", label: "function" },
                   // outros operadores se quiser
                 ]}
               />

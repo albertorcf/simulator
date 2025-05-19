@@ -1,5 +1,6 @@
 // src/data/strategies/baseStrategy.ts
 import { RuleGroupType } from "react-querybuilder";
+//import { Field } from 'react-querybuilder';
 
 export const baseStrategy = {
   // Todas as variáveis e funções em uma única seção "vars"
@@ -32,11 +33,19 @@ export const baseStrategy = {
     { name: "inativo", expr: "index - last", type: "computed" },
 
     // Actions
-    { name: "buy()", descr: "Compra qty, atualiza saldoUSDT, saldoSOL, buyCount, lastOp, candleOp", type: "action" },
-    { name: "sell()", descr: "Vende qty, atualiza saldoUSDT, saldoSOL, sellCount, lastOp, candleOp", type: "action" },
-    { name: "reset()", descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'", type: "action" },
-    { name: "resetR()", descr: "Atualiza resistência para close + delta, candleOp = 'R'", type: "action" },
-    { name: "resetS()", descr: "Atualiza suporte para close - delta, candleOp = 'R'", type: "action" },
+    { 
+      name: "buy()", 
+      descr: "Compra qty, atualiza saldoUSDT, saldoSOL, buyCount, lastOp, candleOp", 
+      type: "action",
+      datatype: "function",
+    },
+    { name: "sell()",
+      descr: "Vende qty, atualiza saldoUSDT, saldoSOL, sellCount, lastOp, candleOp",
+      type: "action",
+      datatype: "function", },
+    { name: "reset()", descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'", type: "action", datatype: "function", },
+    { name: "resetR()", descr: "Atualiza resistência para close + delta, candleOp = 'R'", type: "action", datatype: "function", },
+    { name: "resetS()", descr: "Atualiza suporte para close - delta, candleOp = 'R'", type: "action", datatype: "function", },
   ],
 
   // Regras de decisão permanecem iguais
@@ -57,8 +66,8 @@ export const baseStrategy = {
       action: {
         combinator: "and",
         rules: [
-          { field: "sell()",  operator: "=", value: "" },
-          { field: "reset()", operator: "=", value: "" },
+          { field: "sell()",  operator: "function", value: "" },
+          { field: "reset()", operator: "function", value: "" },
         ]
       } satisfies RuleGroupType,
     },
