@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { RuleGroupType } from "react-querybuilder";
-import { QueryBuilderEditor } from "visual-editor";
+import { QueryBuilderEditor, Listbox } from "visual-editor";
 
 /*
 Simular essa função no QueryBuilderEditor:
@@ -41,6 +41,16 @@ const userDefinedFunctions: UserDefinedFunction[] = [
         { field: "close", operator: ">=", valueSource: "field", value: "resistencia" }
       ]
     },
+  },
+  {
+    name: "exemplo2",
+    descr: "Exemplo de outra função UDF",
+    query: {
+      combinator: "and",
+      rules: [
+        { field: "delta", operator: "<=", valueSource: "value", value: 10 }
+      ]
+    },
   }
 ];
 
@@ -55,16 +65,39 @@ const fields = [
 ]
 
 export default function UdfPage() {
-  const [udf, setUdf] = useState<UserDefinedFunction>(userDefinedFunctions[0]);
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [udfs, setUdfs] = useState<UserDefinedFunction[]>(userDefinedFunctions);
+
+  const udf = udfs[selectedIdx];
+
+  // Atualiza a query da UDF selecionada
+  const handleQueryChange = (q: RuleGroupType) => {
+    setUdfs(udfs.map((item, idx) =>
+      idx === selectedIdx ? { ...item, query: q } : item
+    ));
+  };
 
   return (
     <main className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Teste de User Defined Function: <span className="text-blue-700">{udf.name}</span></h1>
+      <div className="mb-4">
+        <div className="font-semibold mb-1">Selecione a função:</div>
+        <Listbox
+          items={udfs.map(u => u.name)}
+          selectedIndex={selectedIdx}
+          onSelect={setSelectedIdx}
+          className="w-full max-w-xs"
+        />
+      </div>
+
+      <h1 className="text-2xl font-bold mb-4">
+        Teste de User Defined Function: <span className="text-blue-700">{udf.name}</span>
+      </h1>
+      
       <p className="mb-4 text-gray-700">{udf.descr}</p>
       <QueryBuilderEditor
         fields={fields}
         query={udf.query}
-        onQueryChange={q => setUdf({ ...udf, query: q })}
+        onQueryChange={handleQueryChange}
       />
 
       {/* Visualização da query em JSON */}
@@ -74,9 +107,6 @@ export default function UdfPage() {
           {JSON.stringify(udf.query, null, 2)}
         </pre>
       </div>
-      
-      {/* Aqui você pode adicionar botões para salvar, testar, etc */}
-      
     </main>
   );
 }
