@@ -79,20 +79,22 @@ export default function UdfPage() {
 
   return (
     <main className="p-6 max-w-2xl mx-auto">
-      <div className="mb-4">
+      <div className="mb-2">
         <div className="font-semibold mb-1">Selecione a função:</div>
+        <div className="h-32">
         <Listbox
+          className="w-full max-w-xs rounded border bg-white"
           items={udfs.map(u => u.name)}
           selectedIndex={selectedIdx}
           onSelect={setSelectedIdx}
-          className="w-full max-w-xs"
         />
+        </div>
       </div>
 
       <h1 className="text-2xl font-bold mb-4">
         Teste de User Defined Function: <span className="text-blue-700">{udf.name}</span>
       </h1>
-      
+
       <p className="mb-4 text-gray-700">{udf.descr}</p>
       <QueryBuilderEditor
         fields={fields}
