@@ -32,6 +32,15 @@ export const baseStrategy = {
     { name: "valorOp",      expr: "close * qty", type: "computed" },
     { name: "inativo",      expr: "index - last", type: "computed" },
 
+    // Funções (exemplo!!!)
+    {
+      name: "rsi()",
+      descr: "Retorna o valor do RSI calculado para o candle atual",
+      type: "state",
+      datatype: "number",
+      sideEffect: false
+    },
+
     // Funções (ações)
     { 
       name: "buy()", 
