@@ -32,20 +32,42 @@ export const baseStrategy = {
     { name: "valorOp",      expr: "close * qty", type: "computed" },
     { name: "inativo",      expr: "index - last", type: "computed" },
 
-    // Actions
+    // Funções (ações)
     { 
       name: "buy()", 
       descr: "Compra qty, atualiza saldoUSDT, saldoSOL, buyCount, lastOp, candleOp", 
-      type: "action",
-      datatype: "function",
+      type: "function",
+      datatype: "void",
+      sideEffect: true,
     },
-    { name: "sell()",
+    { 
+      name: "sell()",
       descr: "Vende qty, atualiza saldoUSDT, saldoSOL, sellCount, lastOp, candleOp",
-      type: "action",
-      datatype: "function", },
-    { name: "reset()",  descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'", type: "action", datatype: "function", },
-    { name: "resetR()", descr: "Atualiza resistência para close + delta, candleOp = 'R'", type: "action", datatype: "function", },
-    { name: "resetS()", descr: "Atualiza suporte para close - delta, candleOp = 'R'", type: "action", datatype: "function", },
+      type: "function",
+      datatype: "void",
+      sideEffect: true,
+    },
+    { 
+      name: "reset()",  
+      descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'", 
+      type: "function", 
+      datatype: "void", 
+      sideEffect: true,
+    },
+    { 
+      name: "resetR()", 
+      descr: "Atualiza resistência para close + delta, candleOp = 'R'", 
+      type: "function", 
+      datatype: "void", 
+      sideEffect: true,
+    },
+    { 
+      name: "resetS()", 
+      descr: "Atualiza suporte para close - delta, candleOp = 'R'", 
+      type: "function", 
+      datatype: "void", 
+      sideEffect: true,
+    },
   ],
 
   // Regras de decisão permanecem iguais

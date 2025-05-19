@@ -74,8 +74,13 @@ export default function TestePage() {
   }
 
   const init = vars.filter(v => v.type === "state" || v.type === "candle");
-  const varsCondition = vars.filter(v => v.type === "computed" && !v.name.endsWith("()"));
-  const varsAction = vars.filter(v => v.type === "action");
+  // Para condições: computed + funções sem efeito colateral (sideEffect: false)
+  const varsCondition = [
+    ...vars.filter(v => v.type === "computed" && !v.name.endsWith("()")),
+    ...vars.filter(v => v.type === "function" && v.sideEffect !== true)
+  ];
+  // Para ações: funções com efeito colateral (sideEffect: true)
+  const varsAction = vars.filter(v => v.type === "function" && v.sideEffect === true);
   //console.log('*** varsAction=', varsAction);
 
   // ─── helper para “dormir” ────────────────────────────
