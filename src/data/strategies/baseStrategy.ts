@@ -6,20 +6,20 @@ export const baseStrategy = {
   // Todas as variáveis e funções em uma única seção "vars"
   vars: [
     // State
-    { name: "saldoUSDT", value: 100, type: "state" },
-    { name: "saldoSOL", value: 1, type: "state" },
-    { name: "delta", value: 1, type: "state" },
-    { name: "qty", value: 0.1, type: "state" },
-    { name: "taxa", value: 0.001, type: "state" },
-    { name: "lastOp", value: "V", type: "state" },
-    { name: "candleOp", value: "I", type: "state" },
-    { name: "last", value: 1, type: "state" },
-    { name: "iddleInit", value: 10, type: "state" },
-    { name: "iddleCount", value: 10, type: "state" },
-    { name: "sellCount", value: 0, type: "state" },
-    { name: "buyCount", value: 0, type: "state" },
-    { name: "opCount", value: 0, type: "state" },
-    { name: "last", value: 0, type: "state" },
+    { name: "saldoUSDT",  value: 100,   type: "state" },
+    { name: "saldoSOL",   value: 1,     type: "state" },
+    { name: "delta",      value: 1,     type: "state" },
+    { name: "qty",        value: 0.1,   type: "state" },
+    { name: "taxa",       value: 0.001, type: "state" },
+    { name: "lastOp",     value: "V",   type: "state" },
+    { name: "candleOp",   value: "I",   type: "state" },
+    { name: "last",       value: 1,     type: "state" },
+    { name: "iddleInit",  value: 10,    type: "state" },
+    { name: "iddleCount", value: 10,    type: "state" },
+    { name: "sellCount",  value: 0,     type: "state" },
+    { name: "buyCount",   value: 0,     type: "state" },
+    { name: "opCount",    value: 0,     type: "state" },
+    { name: "last",       value: 0,     type: "state" },
 
     // Candle
     { name: "close", value: 0, type: "candle" },
@@ -27,10 +27,10 @@ export const baseStrategy = {
     { name: "time",  value: 0, type: "candle" },
 
     // Computed
-    { name: "resistencia", value: 0, type: "computed" },
-    { name: "suporte", value: 0, type: "computed" },
-    { name: "valorOp", expr: "close * qty", type: "computed" },
-    { name: "inativo", expr: "index - last", type: "computed" },
+    { name: "resistencia",  value: 0, type: "computed" },
+    { name: "suporte",      value: 0, type: "computed" },
+    { name: "valorOp",      expr: "close * qty", type: "computed" },
+    { name: "inativo",      expr: "index - last", type: "computed" },
 
     // Actions
     { 
@@ -43,7 +43,7 @@ export const baseStrategy = {
       descr: "Vende qty, atualiza saldoUSDT, saldoSOL, sellCount, lastOp, candleOp",
       type: "action",
       datatype: "function", },
-    { name: "reset()", descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'", type: "action", datatype: "function", },
+    { name: "reset()",  descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'", type: "action", datatype: "function", },
     { name: "resetR()", descr: "Atualiza resistência para close + delta, candleOp = 'R'", type: "action", datatype: "function", },
     { name: "resetS()", descr: "Atualiza suporte para close - delta, candleOp = 'R'", type: "action", datatype: "function", },
   ],
