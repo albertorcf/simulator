@@ -349,6 +349,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 
     // Inicializa demais variáveis no loop
     scope.candleOp = 'I';   // Inicializa candle op para iddle (inativo)
+    scope.break = false;    // Inicializa break como false para avaliar todas as regras
 
     // ───── Avaliar condições das regras e executar ações ─────
     for (const rule of strategy.rules) {
@@ -371,8 +372,9 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
         }
         // Permite customizar se deve parar o loop de regras, ou não, após validar a regra atual
         // Incluir campo break: false se quiser seguir adiante nas validações em qualquer caso
+        // Também pode alterar scope.break na udf
         // Ex.: após um sell não vai testar buy e reset
-        if (rule.break !== false) break;
+        if (scope.break || rule.break !== false) break;
       }
     }
 

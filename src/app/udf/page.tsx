@@ -8,19 +8,19 @@ import { QueryBuilderEditor, Listbox } from "visual-editor";
 Simular essa função no QueryBuilderEditor:
 
 function reset(scope: any) {
-  const close = scope.close;
-  const delta = scope.delta;
-  scope.resistencia = close + delta;
-  scope.suporte = close - delta;
-
-  scope.iddleCount = scope.iddleInit;  // zera contador de iterações iddle (inativas)
+  // Bloco 1
+  resistencia = close + delta;
+  suporte = close - delta;
+  opResistencia = resistencia;
+  opSuporte = suporte;
+  iddleCount = iddleInit;  // zera contador de iterações iddle (inativas)
+  break = true;            // não avaliar mais nenhuma regra depois dessa
   
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-    scope.op.type = 'reset';
+  // Bloco 2
+  if (candleOp === 'I') {
+    candleOp = "R";
+    opType = 'reset';
   }
-  scope.op.R = scope.resistencia;
-  scope.op.S = scope.suporte;
 }
 */
 

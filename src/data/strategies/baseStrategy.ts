@@ -20,6 +20,8 @@ export const baseStrategy = {
     { name: "buyCount",   value: 0,     type: "state" },
     { name: "opCount",    value: 0,     type: "state" },
     { name: "last",       value: 0,     type: "state" },
+    { name: "break",      value: false, type: "state" },  // Break no loop de rules. Inicializada para false a cada iteração. Ajustar o valor na udf.
+    { name: "true",       value: true,  type: "state" },  // Para condições true === true
 
     // Candle
     { name: "close", value: 0, type: "candle" },
