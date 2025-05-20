@@ -1,6 +1,7 @@
 // lib/simulator/ruleEngine.ts
 // Engine para interpretar e executar condições e ações de regras/UDFs
-import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
+import type { RuleGroupType, RuleGroupTypeAny, RuleType } from "react-querybuilder";
+import { evalExpr } from "@/utils/evalExpr"; // ajuste o caminho se necessário
 
 /**
  * Avalia um RuleGroupType ou RuleGroupTypeAny sobre o escopo fornecido.
@@ -60,16 +61,57 @@ export function evaluateRuleGroup(
   return isAnd; // true para AND (todos true, todas as condições atendidas), false para OR (todos false, nenhuma condição atendida)
 }
 
+
+// Função type guard
+function isSimpleRule(rule: any): rule is RuleType<string, string, any, string> {
+  return rule && 'field' in rule && typeof rule.field === 'string';
+}
+
 /**
  * Executa um grupo de ações (RuleGroupType) sobre o escopo fornecido.
  * Pode suportar ações do tipo atribuição, chamada de função, etc.
+ * Só haverá regras simples (atribuições ou funções)! Não haverá +Group!
+ * Uma atribuição pode ser no formato <var> = "expr: <expr>"
  */
 export function executeActions(
   actions: RuleGroupType | RuleGroupTypeAny,
   scope: any
 ): void {
-  // TODO: Implementar lógica de execução de ações
+  for (const rule of actions.rules) {
+    if (typeof rule !== "object" || rule === null) continue;
+
+    // Verifica se é uma regra simples
+    if (!isSimpleRule(rule)) continue;
+
+    // Agora o TypeScript sabe que rule tem campo 'field'
+
+    // Chamada de função: { field: "buy()", ... }
+    if (rule.field.endsWith("()")) {
+      const fnName = rule.field.replace("()", "");
+      if (typeof scope[fnName] === "function") {
+        scope[fnName]();
+      }
+      continue;
+    }
+
+    // Atribuição direta ou via expressão
+    let value: any = rule.value;
+
+    // Suporte a valueSource: "field"
+    if (rule.valueSource === "field") {
+      value = scope[rule.value];
+    }
+
+    // Suporte a value: "expr: ..."
+    if (typeof value === "string" && value.startsWith("expr:")) {
+      const expr = value.replace(/^expr:\s*/, "");
+      value = evalExpr(expr, scope);
+    }
+
+    scope[rule.field] = value;
+  }
 }
+
 
 /**
  * Avalia e executa todos os blocos de uma UDF.
