@@ -24,33 +24,81 @@ function reset(scope: any) {
 }
 */
 
+type UdfBlock = {
+  descr: string;
+  condition: RuleGroupType;
+  actions: RuleGroupType;
+};
+
 type UserDefinedFunction = {
   name: string;
   descr: string;
-  query: RuleGroupType;
+  blocks: UdfBlock[];
 };
 
 const userDefinedFunctions: UserDefinedFunction[] = [
   {
     name: "reset",
-    descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R'",
-    query: {
-      combinator: "and",
-      rules: [
-        // Exemplo de regra, adapte conforme necessário
-        { field: "close", operator: ">=", valueSource: "field", value: "resistencia" }
-      ]
-    },
+    descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R' se 'I'",
+    blocks: [
+      {
+        descr: "Bloco 1",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "true", operator: "=", valueSource: "value", value: "true" }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "resistencia", operator: "=", valueSource: "value", value: "expr: close + delta" },
+            { field: "suporte", operator: "=", valueSource: "value", value: "expr: close - delta" },
+            { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
+            { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
+            { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
+            { field: "break", operator: "=", valueSource: "value", value: "true" }
+          ]
+        }
+      },
+      {
+        descr: "Bloco 2",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", valueSource: "value", value: "I" }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", value: "R" },
+            { field: "opType", operator: "=", value: "reset" }
+          ]
+        }
+      }
+    ]
   },
   {
     name: "exemplo2",
     descr: "Exemplo de outra função UDF",
-    query: {
-      combinator: "and",
-      rules: [
-        { field: "delta", operator: "<=", valueSource: "value", value: 10 }
-      ]
-    },
+    blocks: [
+      {
+        descr: "Bloco único",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "delta", operator: "<=", valueSource: "value", value: 10 }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "suporte", operator: "=", valueSource: "value", value: 5 }
+          ]
+        }
+      }
+    ]
   }
 ];
 
@@ -62,7 +110,13 @@ const fields = [
   { name: "suporte", label: "suporte" },
   { name: "candleOp", label: "candleOp" },
   { name: "iddleCount", label: "iddleCount" },
-]
+  { name: "iddleInit", label: "iddleInit" },
+  { name: "opResistencia", label: "opResistencia" },
+  { name: "opSuporte", label: "opSuporte" },
+  { name: "break", label: "break" },
+  { name: "opType", label: "opType" },
+  { name: "true", label: "true" },
+];
 
 export default function UdfPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -70,45 +124,107 @@ export default function UdfPage() {
 
   const udf = udfs[selectedIdx];
 
-  // Atualiza a query da UDF selecionada
-  const handleQueryChange = (q: RuleGroupType) => {
-    setUdfs(udfs.map((item, idx) =>
-      idx === selectedIdx ? { ...item, query: q } : item
+  const [selectedBlockIdx, setSelectedBlockIdx] = useState(0);
+
+  const block = udf.blocks[selectedBlockIdx];
+
+  // Atualiza a condição do bloco selecionado
+  const handleConditionChange = (q: RuleGroupType) => {
+    setUdfs(udfs.map((udfItem, udfIdx) =>
+      udfIdx === selectedIdx
+        ? {
+          ...udfItem,
+          blocks: udfItem.blocks.map((b, bIdx) =>
+            bIdx === selectedBlockIdx ? { ...b, condition: q } : b
+          )
+        }
+        : udfItem
     ));
   };
 
+  // Atualiza as ações do bloco selecionado
+  const handleActionsChange = (q: RuleGroupType) => {
+    setUdfs(udfs.map((udfItem, udfIdx) =>
+      udfIdx === selectedIdx
+        ? {
+          ...udfItem,
+          blocks: udfItem.blocks.map((b, bIdx) =>
+            bIdx === selectedBlockIdx ? { ...b, actions: q } : b
+          )
+        }
+        : udfItem
+    ));
+  };
+
+  // Quando trocar de função, resetar o bloco selecionado para o primeiro
+  const handleSelectUdf = (idx: number) => {
+    setSelectedIdx(idx);
+    setSelectedBlockIdx(0);
+  };
+
+
   return (
-    <main className="p-6 max-w-2xl mx-auto">
-      <div className="mb-2">
-        <div className="font-semibold mb-1">Selecione a função:</div>
-        <div className="h-32">
-        <Listbox
-          className="w-full max-w-xs rounded border bg-white"
-          items={udfs.map(u => u.name)}
-          selectedIndex={selectedIdx}
-          onSelect={setSelectedIdx}
-        />
+    <main className="p-6 max-w-3xl mx-auto">
+      
+      {/* Listboxs */}
+      <div className="flex flex-row gap-4 mb-2">
+        <div>
+          <div className="font-semibold mb-1">Função:</div>
+            <div className="h-38">
+              <Listbox
+                className="w-48 rounded border bg-white"
+                items={udfs.map(u => u.name)}
+                selectedIndex={selectedIdx}
+                onSelect={handleSelectUdf}
+              />
+            </div>
+        </div>
+        <div>
+          <div className="font-semibold mb-1">Bloco:</div>
+            <div className="h-38">
+              <Listbox
+                className="w-48 rounded border bg-white"
+                items={udf.blocks.map(b => b.descr)}
+                selectedIndex={selectedBlockIdx}
+                onSelect={setSelectedBlockIdx}
+              />
+            </div>
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold mb-4">
-        Teste de User Defined Function: <span className="text-blue-700">{udf.name}</span>
+      <h1 className="text-2xl font-bold mb-1">
+        Função: <span className="text-blue-700">{udf.name}</span>
       </h1>
+      <p className="mb-2 text-gray-700">{udf.descr}</p>
+      <h2 className="text-lg font-semibold mb-1">
+        Bloco: <span className="text-blue-700">{block.descr}</span>
+      </h2>
 
-      <p className="mb-4 text-gray-700">{udf.descr}</p>
-      <QueryBuilderEditor
-        fields={fields}
-        query={udf.query}
-        onQueryChange={handleQueryChange}
-      />
+      <div className="mb-2">
+        <div className="font-semibold mb-1">Condição</div>
+        <QueryBuilderEditor
+          fields={fields}
+          query={block.condition}
+          onQueryChange={handleConditionChange}
+        />
+      </div>
+      <div className="mb-2">
+        <div className="font-semibold mb-1">Ações</div>
+        <QueryBuilderEditor
+          fields={fields}
+          query={block.actions}
+          onQueryChange={handleActionsChange}
+        />
+      </div>
 
       {/* Visualização da query em JSON */}
-      <div className="mt-6">
-        <div className="font-semibold mb-1">Query (JSON):</div>
+      <div className="mt-1">
+        <div className="font-semibold mb-1">Bloco (JSON):</div>
         <pre className="bg-gray-100 rounded p-2 text-xs overflow-x-auto">
-          {JSON.stringify(udf.query, null, 2)}
+          {JSON.stringify(block, null, 2)}
         </pre>
       </div>
     </main>
   );
+
 }
