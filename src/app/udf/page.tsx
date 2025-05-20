@@ -258,6 +258,7 @@ export default function UdfPage() {
           fields={fields}
           query={block.actions}
           onQueryChange={handleActionsChange}
+          className="bg-red-100"
         />
       </div>
 
