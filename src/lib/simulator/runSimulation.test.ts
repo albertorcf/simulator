@@ -1,8 +1,8 @@
 import type { RuleGroupTypeAny } from 'react-querybuilder';
 import { baseStrategy } from '../../data/strategies/baseStrategy';
+import { evaluateRuleGroup } from './ruleEngine';
 import { 
   runSimulation, 
-  evaluateRuleGroup, 
   ruleGroupToString 
 } from './runSimulation';
 import { buy, sell, reset, resetR, resetS } from './runSimulation';
