@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RuleGroupType } from "react-querybuilder";
 import { QueryBuilderEditor, Listbox } from "visual-editor";
+import { evaluateRuleGroup } from "@/lib/simulator/ruleEngine"; // ajuste o caminho se necessário
 
 /*
 Simular essa função no QueryBuilderEditor:
@@ -46,7 +47,7 @@ const userDefinedFunctions: UserDefinedFunction[] = [
         condition: {
           combinator: "and",
           rules: [
-            { field: "true", operator: "=", valueSource: "value", value: "true" }
+            { field: "true", operator: "=", valueSource: "value", value: true }
           ]
         },
         actions: {
@@ -118,6 +119,22 @@ const fields = [
   { name: "true", label: "true" },
 ];
 
+// Exemplo de scope para teste (ajuste conforme necessário)
+const testScope = {
+  close: 100,
+  delta: 10,
+  resistencia: 110,
+  suporte: 90,
+  candleOp: "I",
+  iddleCount: 5,
+  iddleInit: 10,
+  opResistencia: 0,
+  opSuporte: 0,
+  break: false,
+  opType: "",
+  true: true,
+};
+
 export default function UdfPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [udfs, setUdfs] = useState<UserDefinedFunction[]>(userDefinedFunctions);
@@ -162,6 +179,18 @@ export default function UdfPage() {
     setSelectedBlockIdx(0);
   };
 
+  // ======================
+  // Avaliar/executar rules
+  // ======================
+
+  // Estado para mostrar o resultado do teste
+  const [testResult, setTestResult] = useState<null | boolean>(null);
+
+  // Função para testar a condição do bloco selecionado
+  const handleTestCondition = () => {
+    const result = evaluateRuleGroup(block.condition, testScope);
+    setTestResult(result);
+  };
 
   return (
     <main className="p-6 max-w-3xl mx-auto">
@@ -207,7 +236,22 @@ export default function UdfPage() {
           query={block.condition}
           onQueryChange={handleConditionChange}
         />
+        <button
+          className="mt-2 px-3 py-1 rounded bg-blue-600 text-white"
+          onClick={handleTestCondition}
+        >
+          Testar condição
+        </button>
+        {testResult !== null && (
+          <span className="ml-4 align-middle">
+            <span className="font-semibold">Resultado do teste:</span>{" "}
+            <span className={testResult ? "text-green-600" : "text-red-600"}>
+              {testResult ? "Verdadeiro" : "Falso"}
+            </span>
+          </span>
+        )}
       </div>
+
       <div className="mb-2">
         <div className="font-semibold mb-1">Ações</div>
         <QueryBuilderEditor
