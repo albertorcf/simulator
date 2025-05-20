@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { RuleGroupType } from "react-querybuilder";
 import { QueryBuilderEditor, Listbox } from "visual-editor";
-import { evaluateRuleGroup } from "@/lib/simulator/ruleEngine"; // ajuste o caminho se necessário
+import { evaluateRuleGroup, executeActions } from "@/lib/simulator/ruleEngine";
 
 /*
 Simular essa função no QueryBuilderEditor:
@@ -192,6 +192,25 @@ export default function UdfPage() {
     setTestResult(result);
   };
 
+  // =======================
+  // Testar executar actions
+  // =======================
+
+  // Novo estado para armazenar o resultado da execução das ações
+  const [actionResult, setActionResult] = useState<Record<string, any> | null>(null);
+
+  // Função para testar as ações do bloco selecionado
+  const handleTestActions = () => {
+    // Cria uma cópia do scope para não afetar o original
+    const testScopeCopy = { ...testScope };
+
+    // Executa as ações no scope copiado
+    executeActions(block.actions, testScopeCopy);
+
+    // Atualiza o estado com o resultado
+    setActionResult(testScopeCopy);
+  };
+
   return (
     <main className="p-6 max-w-3xl mx-auto">
       
@@ -251,7 +270,8 @@ export default function UdfPage() {
           </span>
         )}
       </div>
-
+      
+      {/* Ações */}
       <div className="mb-2">
         <div className="font-semibold mb-1">Ações</div>
         <QueryBuilderEditor
@@ -260,7 +280,36 @@ export default function UdfPage() {
           onQueryChange={handleActionsChange}
           className="bg-red-100"
         />
+        <button
+          className="mt-2 px-3 py-1 rounded bg-blue-600 text-white"
+          onClick={handleTestActions}
+        >
+          Testar ações
+        </button>
       </div>
+
+      {/* Visualização do resultado da execução das ações */}
+      {actionResult && (
+        <div className="mt-3 mb-4">
+          <div className="font-semibold mb-1">Resultado da execução:</div>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(actionResult).map(([key, value]) => (
+              <div
+                key={key}
+                className={`p-1 rounded ${
+                  // Destaca os campos que foram alterados
+                  JSON.stringify(testScope[key as keyof typeof testScope]) !== JSON.stringify(value)
+                    ? 'bg-yellow-100 font-medium'
+                    : ''
+                }`}
+              >
+                <span className="text-gray-600">{key}:</span> {JSON.stringify(value)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
 
       {/* Visualização da query em JSON */}
       <div className="mt-1">
