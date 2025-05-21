@@ -123,8 +123,8 @@ const fields = [
 const testScope = {
   close: 100,
   delta: 10,
-  resistencia: 110,
-  suporte: 90,
+  resistencia: 0, // valor diferente do resultado esperado
+  suporte: 0,     // valor diferente do resultado esperado
   candleOp: "I",
   iddleCount: 5,
   iddleInit: 10,
@@ -291,21 +291,17 @@ export default function UdfPage() {
       {/* Visualização do resultado da execução das ações */}
       {actionResult && (
         <div className="mt-3 mb-4">
-          <div className="font-semibold mb-1">Resultado da execução:</div>
+          <div className="font-semibold mb-1">Variáveis alteradas/criadas:</div>
           <div className="grid grid-cols-2 gap-2">
-            {Object.entries(actionResult).map(([key, value]) => (
-              <div
-                key={key}
-                className={`p-1 rounded ${
-                  // Destaca os campos que foram alterados
-                  JSON.stringify(testScope[key as keyof typeof testScope]) !== JSON.stringify(value)
-                    ? 'bg-yellow-100 font-medium'
-                    : ''
-                }`}
-              >
-                <span className="text-gray-600">{key}:</span> {JSON.stringify(value)}
-              </div>
-            ))}
+            {Object.entries(actionResult)
+              .filter(([key, value]) =>
+                !(key in testScope) || JSON.stringify(testScope[key as keyof typeof testScope]) !== JSON.stringify(value)
+              )
+              .map(([key, value]) => (
+                <div key={key} className="p-1 rounded bg-yellow-100 font-medium">
+                  <span className="text-gray-600">{key}:</span> {JSON.stringify(value)}
+                </div>
+              ))}
           </div>
         </div>
       )}
