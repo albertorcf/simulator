@@ -297,11 +297,17 @@ export default function UdfPage() {
               .filter(([key, value]) =>
                 !(key in testScope) || JSON.stringify(testScope[key as keyof typeof testScope]) !== JSON.stringify(value)
               )
-              .map(([key, value]) => (
-                <div key={key} className="p-1 rounded bg-yellow-100 font-medium">
-                  <span className="text-gray-600">{key}:</span> {JSON.stringify(value)}
-                </div>
-              ))}
+              .map(([key, value]) => {
+                const oldValue = key in testScope ? testScope[key as keyof typeof testScope] : "<não existia>";
+                return (
+                  <div key={key} className="p-1 rounded bg-yellow-100 font-medium">
+                    <span className="text-gray-600">{key}:</span>{" "}
+                    <span className="text-blue-700">{JSON.stringify(oldValue)}</span>
+                    {" -> "}
+                    <span className="text-green-700">{JSON.stringify(value)}</span>
+                  </div>
+                );
+              })}
           </div>
         </div>
       )}
