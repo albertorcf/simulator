@@ -117,6 +117,7 @@ const fields = [
   { name: "break", label: "break" },
   { name: "opType", label: "opType" },
   { name: "true", label: "true" },
+  { name: "returnValue", label: "returnValue" },
 ];
 
 // Exemplo de scope para teste (ajuste conforme necessário)
@@ -133,6 +134,7 @@ const testScope = {
   break: false,
   opType: "",
   true: true,
+  returnValue: null,
 };
 
 export default function UdfPage() {
