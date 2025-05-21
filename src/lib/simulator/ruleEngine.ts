@@ -127,7 +127,10 @@ export function executeActions(
 export function runUdf(
   blocks: { condition: RuleGroupType; actions: RuleGroupType }[],
   scope: any
-): boolean {
-  // TODO: Implementar lógica para percorrer blocos, avaliar condição e executar ações
-  return false;
+): void {
+  for (const block of blocks) {
+    if (evaluateRuleGroup(block.condition, scope)) {
+      executeActions(block.actions, scope);
+    }
+  }
 }

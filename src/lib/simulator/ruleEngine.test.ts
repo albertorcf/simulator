@@ -1,5 +1,5 @@
 import { RuleGroupType } from "react-querybuilder";
-import { evaluateRuleGroup, executeActions } from "./ruleEngine";
+import { evaluateRuleGroup, executeActions, runUdf } from "./ruleEngine";
 
 describe("evaluateRuleGroup", () => {
   it("deve retornar true para grupo AND com todas as condições verdadeiras", () => {
@@ -79,5 +79,61 @@ describe("executeActions", () => {
     executeActions(actions, scope);
     
     expect(mockFn).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * runUdf
+ */
+describe("runUdf", () => {
+  it("executa todos os blocos cujas condições são verdadeiras", () => {
+    const blocks = [
+      {
+        condition: {
+          combinator: "and",
+          rules: [{ field: "a", operator: "=", valueSource: "value", value: 1 }]
+        } as RuleGroupType,
+        actions: {
+          combinator: "and",
+          rules: [{ field: "x", operator: "=", valueSource: "value", value: 10 }]
+        } as RuleGroupType
+      },
+      {
+        condition: {
+          combinator: "and",
+          rules: [{ field: "b", operator: "=", valueSource: "value", value: 2 }]
+        } as RuleGroupType,
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "y", operator: "=", valueSource: "value", value: 20 },
+            { field: "z", operator: "=", valueSource: "value", value: 21 },  // var z não existe no scope
+          ]
+        } as RuleGroupType
+      }
+    ];
+    const scope: Record<string, any> = { a: 1, b: 2, x: 0, y: 0 };
+    runUdf(blocks, scope);
+    expect(scope.x).toBe(10);
+    expect(scope.y).toBe(20);
+    expect(scope.z).toBe(21);
+  });
+
+  it("não executa blocos cujas condições são falsas", () => {
+    const blocks = [
+      {
+        condition: {
+          combinator: "and",
+          rules: [{ field: "a", operator: "=", valueSource: "value", value: 1 }]
+        } as RuleGroupType,
+        actions: {
+          combinator: "and",
+          rules: [{ field: "x", operator: "=", valueSource: "value", value: 10 }]
+        } as RuleGroupType
+      }
+    ];
+    const scope: Record<string, any> = { a: 2 };
+    runUdf(blocks, scope);
+    expect(scope['x']).toBeUndefined();
   });
 });
