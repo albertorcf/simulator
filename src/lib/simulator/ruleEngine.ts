@@ -124,7 +124,7 @@ export function executeActions(
  * Avalia e executa todos os blocos de uma UDF.
  * Retorna true se algum bloco foi executado.
  */
-export function runUdfBlocks(
+export function runUdf(
   blocks: { condition: RuleGroupType; actions: RuleGroupType }[],
   scope: any
 ): boolean {
