@@ -292,7 +292,7 @@ export default function UdfPage() {
       {actionResult && (
         <div className="mt-3 mb-4">
           <div className="font-semibold mb-1">Variáveis alteradas/criadas:</div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm">
             {Object.entries(actionResult)
               .filter(([key, value]) =>
                 !(key in testScope) || JSON.stringify(testScope[key as keyof typeof testScope]) !== JSON.stringify(value)
@@ -300,10 +300,10 @@ export default function UdfPage() {
               .map(([key, value]) => {
                 const oldValue = key in testScope ? testScope[key as keyof typeof testScope] : "<não existia>";
                 return (
-                  <div key={key} className="p-1 rounded bg-yellow-100 font-medium">
-                    <span className="text-gray-600">{key}:</span>{" "}
+                  <div key={key} className="p-1 rounded bg-yellow-100 font-medium flex items-center gap-1">
+                    <span className="text-gray-600">{key}:</span>
                     <span className="text-blue-700">{JSON.stringify(oldValue)}</span>
-                    {" -> "}
+                    <span className="mx-1">➡️</span>
                     <span className="text-green-700">{JSON.stringify(value)}</span>
                   </div>
                 );
