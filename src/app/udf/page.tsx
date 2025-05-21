@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { RuleGroupType } from "react-querybuilder";
 import { QueryBuilderEditor, Listbox } from "visual-editor";
-import { evaluateRuleGroup, executeActions } from "@/lib/simulator/ruleEngine";
+import { evaluateRuleGroup, executeActions, runUdf } from "@/lib/simulator/ruleEngine";
 
 /*
 Simular essa função no QueryBuilderEditor:
@@ -216,8 +216,9 @@ export default function UdfPage() {
   return (
     <main className="p-6 max-w-3xl mx-auto">
       
-      {/* Listboxs */}
+      {/* Listboxs e botão run UDF */}
       <div className="flex flex-row gap-4 mb-2">
+        {/* Coluna 1: Função */}
         <div>
           <div className="font-semibold mb-1">Função:</div>
             <div className="h-38">
@@ -229,6 +230,7 @@ export default function UdfPage() {
               />
             </div>
         </div>
+        {/* Coluna 2: Bloco */}
         <div>
           <div className="font-semibold mb-1">Bloco:</div>
             <div className="h-38">
@@ -239,6 +241,45 @@ export default function UdfPage() {
                 onSelect={setSelectedBlockIdx}
               />
             </div>
+        </div>
+        {/* Coluna 3: Botão Executar UDF e resultado */}
+        <div className="flex flex-col items-start justify-start gap-2">
+          <button
+            className="px-3 py-1 rounded bg-green-600 text-white"
+            onClick={() => {
+              const testScopeCopy = { ...testScope };
+              // Chama a UDF completa
+              runUdf(udf.blocks, testScopeCopy);
+              setActionResult(testScopeCopy);
+            }}
+          >
+            Executar UDF completa
+          </button>
+          {/* Mostra o returnValue e variáveis alteradas */}
+          {actionResult && (
+            <div className="text-xs mt-1">
+              <div>
+                <span className="font-semibold">returnValue:</span>{" "}
+                <span className="text-blue-700">{JSON.stringify(actionResult.returnValue)}</span>
+              </div>
+              <div className="mt-1">
+                <span className="font-semibold">Alterados:</span>
+                <ul className="list-disc ml-4">
+                  {Object.entries(actionResult)
+                    .filter(([key, value]) =>
+                      key !== "returnValue" &&
+                      (!(key in testScope) || JSON.stringify(testScope[key as keyof typeof testScope]) !== JSON.stringify(value))
+                    )
+                    .map(([key, value]) => (
+                      <li key={key}>
+                        <span className="text-gray-600">{key}:</span>{" "}
+                        <span className="text-green-700">{JSON.stringify(value)}</span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
