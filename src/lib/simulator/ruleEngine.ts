@@ -108,6 +108,11 @@ export function executeActions(
       value = evalExpr(expr, scope);
     }
 
+    // Trata valores booleanos
+    if (value === "true") value = true;
+    if (value === "false") value = false;
+
+    // Atribuição
     scope[rule.field] = value;
   }
 }
