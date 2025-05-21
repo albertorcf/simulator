@@ -108,11 +108,13 @@ export function executeActions(
       value = evalExpr(expr, scope);
     }
 
-    // Trata valores booleanos
-    if (value === "true") value = true;
-    if (value === "false") value = false;
+    // --- Normalização de booleanos em string (remove espaços antes/depois) ---
+    if (typeof value === "string") {
+      const trimmed = value.trim(); // remove espaços antes/depois
+      if (trimmed === "true") value = true;
+      if (trimmed === "false") value = false;
+    }
 
-    // Atribuição
     scope[rule.field] = value;
   }
 }
