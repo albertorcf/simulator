@@ -21,7 +21,11 @@ export const baseStrategy = {
     { name: "opCount",    value: 0,     type: "state" },
     { name: "last",       value: 0,     type: "state" },
     { name: "break",      value: false, type: "state" },  // Break no loop de rules. Inicializada para false a cada iteração. Ajustar o valor na udf.
+    { name: "returnValue", value: undefined, type: "state" }, // Valor retornado pela UDF
     { name: "true",       value: true,  type: "state" },  // Para condições true === true
+    { name: "opResistencia", value: 0,  type: "state" },
+    { name: "opSuporte",     value: 0,  type: "state" },
+    { name: "opType",    value: 'none', type: "state" },
 
     // Candle
     { name: "close", value: 0, type: "candle" },
@@ -81,7 +85,7 @@ export const baseStrategy = {
     },
   ],
 
-  // Regras de decisão permanecem iguais
+  // Regras de decisão
   rules: [
     {
       type: "sell",
