@@ -269,7 +269,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     scope.candleOp = 'I';   // Inicializa candle op para iddle (inativo)
     scope.break = false;    // Inicializa break como false para avaliar todas as regras
 
-    // ───── Avaliar condições das regras e executar ações ─────
+    // ───── Loop para avaliar condições das regras e executar ações ─────
     for (const rule of strategy.rules) {
       // Avalia a condição da regra usando a função recursiva
       if (evaluateRuleGroup(rule.condition, scope)) {
@@ -296,8 +296,9 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
       }
     }
 
-    // Gravar operação no array de operações
+    // Gravar operação do candle no array de operações
     // [TODO] Retornar operações "none"???
+    // [TODO] Melhorar esse código obtendo somente os campos de scope automaticamente
     //if (scope.op.type !== "none") {
       operations.push({ 
         opType: scope.opType,
