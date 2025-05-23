@@ -191,7 +191,7 @@ describe('Funções de operação do simulador', () => {
     expect(scope.saldoSOL).toBeCloseTo(1 + 0.5 - 0.5 * 0.01); // netSOL
     expect(scope.saldoUSDT).toBeCloseTo(100 - 0.5 * 10); // costUSD
     expect(scope.lastOp).toBe("C");
-    expect(scope.op.type).toBe("buy");
+    expect(scope.opType).toBe("buy");
   });
 
   it('sell deve vender SOL e creditar USDT', () => {
@@ -199,7 +199,7 @@ describe('Funções de operação do simulador', () => {
     expect(scope.saldoSOL).toBeCloseTo(1 - 0.5);
     expect(scope.saldoUSDT).toBeCloseTo(100 + (0.5 * 10) * (1 - 0.01)); // netUSD
     expect(scope.lastOp).toBe("V");
-    expect(scope.op.type).toBe("sell");
+    expect(scope.opType).toBe("sell");
   });
 
   it('reset deve atualizar suporte e resistência', () => {
@@ -251,13 +251,13 @@ describe('runSimulation - operações', () => {
       expect(result).not.toBeNull();
       expect(Array.isArray(result!.operations)).toBe(true);
 
-      const ops = result!.operations.filter(op => op.type === "buy" || op.type === "sell");
+      const ops = result!.operations.filter(op => op.opType === "buy" || op.opType === "sell");
       expect(ops.length).toBeGreaterThanOrEqual(2);
 
-      expect(ops[0].type).toBe("buy");
-      expect(ops[0].price).toBe(8);
-      expect(ops[1].type).toBe("sell");
-      expect(ops[1].price).toBe(12);
+      expect(ops[0].opType).toBe("buy");
+      expect(ops[0].opPrice).toBe(8);
+      expect(ops[1].opType).toBe("sell");
+      expect(ops[1].opPrice).toBe(12);
     //} finally {
     //  disableConsoleLog();  // Desabilita o log novamente após o teste
     //}

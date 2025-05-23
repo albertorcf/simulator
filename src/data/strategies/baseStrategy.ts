@@ -26,6 +26,10 @@ export const baseStrategy = {
     { name: "opResistencia", value: 0,  type: "state" },
     { name: "opSuporte",     value: 0,  type: "state" },
     { name: "opType",    value: 'none', type: "state" },
+    { name: "opTimestamp",   value: 0,  type: "state" },
+    { name: "opPrice",       value: 0,  type: "state" },
+    { name: "opQty",         value: 0,  type: "state" },
+    { name: "opDescr",       value: '', type: "state" },
 
     // Candle
     { name: "close", value: 0, type: "candle" },

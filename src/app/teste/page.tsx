@@ -169,24 +169,24 @@ export default function TestePage() {
       if (delaySec === 0) {
         // • modo instantâneo
         const markers = operationsRef.current
-          .filter(op => op.type === "buy" || op.type === "sell" || op.type === "reset")
+          .filter(op => op.opType === "buy" || op.opType === "sell" || op.opType === "reset")
           .map(op => ({
-            x: op.timestamp,
-            y: op.price,
+            x: op.opTimestamp,
+            y: op.opPrice,
             marker: {
               size: 4,
-              fillColor: op.type === "buy" ? "green" : (op.type === "sell" ? "red" : "silver"),
+              fillColor: op.opType === "buy" ? "green" : (op.opType === "sell" ? "red" : "silver"),
               strokeColor: "#fff",
               strokeWidth: 1,
-              shape: op.type === "reset" ? "square" : "circle"
+              shape: op.opType === "reset" ? "square" : "circle"
             }
           }));
         setPointAnnotations(markers);
         setCursorX(null);
         // ajusta S/R para o final da simulação
         const lastOp = result.operations[result.operations.length - 1];
-        setSuporte(lastOp.S ?? suporte);
-        setResistencia(lastOp.R ?? resistencia);
+        setSuporte(lastOp.opSuporte ?? suporte);
+        setResistencia(lastOp.opResistencia ?? resistencia);
       }
       else {
         // • modo slow‑motion
@@ -195,27 +195,27 @@ export default function TestePage() {
           if (cancelRef.current) break;
 
           // move linha vertical
-          setCursorX(op.timestamp);
+          setCursorX(op.opTimestamp);
 
           setPosition(index);
 
           // atualiza S/R se presentes no objeto op
-          setSuporte(op.S ?? suporte);
-          setResistencia(op.R ?? resistencia);
+          setSuporte(op.opSuporte ?? suporte);
+          setResistencia(op.opResistencia ?? resistencia);
 
           // se for compra / venda / reset → adiciona ponto
-          if (op.type === "buy" || op.type === "sell" || op.type === "reset") {
+          if (op.opType === "buy" || op.opType === "sell" || op.opType === "reset") {
             setPointAnnotations(prev => ([
               ...prev,
               {
-                x: op.timestamp,
-                y: op.price,
+                x: op.opTimestamp,
+                y: op.opPrice,
                 marker: {
                   size: 4,
-                  fillColor: op.type === "buy" ? "green" : (op.type === "sell" ? "red" : "silver"),
+                  fillColor: op.opType === "buy" ? "green" : (op.opType === "sell" ? "red" : "silver"),
                   strokeColor: "#fff",
                   strokeWidth: 1,
-                  shape: op.type === "reset" ? "square" : "circle"
+                  shape: op.opType === "reset" ? "square" : "circle"
                 }
               }
             ]));
@@ -229,12 +229,12 @@ export default function TestePage() {
       console.log("📊 Resultado:", result);
 
       result.operations.forEach((op, i) => {
-        if (op.type !== "none") {
-          const dataHora = formatDateTime(new Date(op.timestamp));
+        if (op.opType !== "none") {
+          const dataHora = formatDateTime(new Date(op.opTimestamp));
 
-          const emoji = op.type === "buy" ? "🟢" : "🔴";
-          const tipo = op.type.toUpperCase();
-          console.log(`${emoji} ${dataHora} — ${tipo} @ ${op.price.toFixed(2)} (${op.qty})`);
+          const emoji = op.opType === "buy" ? "🟢" : "🔴";
+          const tipo = op.opType.toUpperCase();
+          console.log(`${emoji} ${dataHora} — ${tipo} @ ${op.opPrice.toFixed(2)} (${op.opQty})`);
         }
       });
 
@@ -273,9 +273,9 @@ export default function TestePage() {
     setPosition(pos);
     setCursorX(candles[pos].time);
     let operations = operationsRef.current;
-    if (operations && operations[pos].R && operations[pos].S) {
-      setResistencia(operations[pos].R);
-      setSuporte(operations[pos].S)
+    if (operations && operations[pos].opResistencia && operations[pos].opSuporte) {
+      setResistencia(operations[pos].opResistencia);
+      setSuporte(operations[pos].opSuporte)
     }
   }
 

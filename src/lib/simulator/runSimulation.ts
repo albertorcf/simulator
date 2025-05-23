@@ -10,13 +10,13 @@ export type RunSimulationParams = {
 };
 
 export type Operation = {
-  type: "buy" | "sell" | "reset" | "none";
-  timestamp: number;
-  price: number;
-  qty?: number;
-  descr?: string;
-  R?: number;
-  S?: number;
+  opType: "buy" | "sell" | "reset" | "none";
+  opTimestamp: number;
+  opPrice: number;
+  opQty?: number;
+  opDescr?: string;
+  opResistencia?: number;
+  opSuporte?: number;
 };
 
 export type SimulationResult = {
@@ -86,12 +86,12 @@ function buy(scope: any) {
   scope.iddleCount = scope.iddleInit;
 
   // ToDo: retornar taxas calculadas para totalização
-  scope.op.type = 'buy';
-  scope.op.timestamp = time;
-  scope.op.price = price;
-  scope.op.qty = netSOL;
-  scope.op.R = scope.resistencia;
-  scope.op.S = scope.suporte;
+  scope.opType = 'buy';
+  scope.opTimestamp = time;
+  scope.opPrice = price;
+  scope.opQty = netSOL;
+  scope.opResistencia = scope.resistencia;
+  scope.opSuporte = scope.suporte;
 }
 
 function sell(scope: any) {
@@ -111,12 +111,12 @@ function sell(scope: any) {
   scope.candleOp = "V";
   scope.iddleCount = scope.iddleInit;
 
-  scope.op.type = 'sell';
-  scope.op.timestamp = time;
-  scope.op.price = price;
-  scope.op.qty = qty;
-  scope.op.R = scope.resistencia;
-  scope.op.S = scope.suporte;
+  scope.opType = 'sell';
+  scope.opTimestamp = time;
+  scope.opPrice = price;
+  scope.opQty = qty;
+  scope.opResistencia = scope.resistencia;
+  scope.opSuporte = scope.suporte;
 }
 
 function reset(scope: any) {
@@ -129,10 +129,10 @@ function reset(scope: any) {
   
   if (scope.candleOp === 'I') {
     scope.candleOp = "R";
-    scope.op.type = 'reset';
+    scope.opType = 'reset';
   }
-  scope.op.R = scope.resistencia;
-  scope.op.S = scope.suporte;
+  scope.opResistencia = scope.resistencia;
+  scope.opSuporte = scope.suporte;
 }
 
 function resetR(scope: any) {
@@ -144,9 +144,9 @@ function resetR(scope: any) {
 
   if (scope.candleOp === 'I') {
     scope.candleOp = "R";
-    scope.op.type = 'reset';
+    scope.opType = 'reset';
   }
-  scope.op.R = scope.resistencia;
+  scope.opResistencia = scope.resistencia;
 }
 
 function resetS(scope: any) {
@@ -158,9 +158,9 @@ function resetS(scope: any) {
 
   if (scope.candleOp === 'I') {
     scope.candleOp = "R";
-    scope.op.type = 'reset';
+    scope.opType = 'reset';
   }
-  scope.op.S = scope.suporte;
+  scope.opSuporte = scope.suporte;
 }
 
 // ───────────────────────────────────────────────────────────────────
@@ -215,13 +215,13 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 
   // Array de operações por candle
   const operations: Operation[] = [{
-    type: "none",
-    timestamp: candles[0].time,
-    price: candles[0].close,
-    qty: 0,
-    descr: "",
-    R: scope.resistencia,
-    S: scope.suporte,
+    opType: "none",
+    opTimestamp: candles[0].time,
+    opPrice: candles[0].close,
+    opQty: 0,
+    opDescr: "",
+    opResistencia: scope.resistencia,
+    opSuporte: scope.suporte,
   }];
 
   // Saldos iniciais
@@ -244,16 +244,14 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     scope.low = candle.low;
     scope.volume = candle.volume;
 
-    // Inicializa op para esta iteração
-    scope.op = {
-      type: "none",
-      timestamp: candle.time,
-      price: candle.close,
-      qty: 0,
-      descr: "",
-      R: scope.resistencia,
-      S: scope.suporte,
-    };
+    // Inicializa op para esta iteração de candle
+    scope.opType = "none";
+    scope.opTimestamp = candle.time;
+    scope.opPrice = candle.close;
+    scope.opQty = 0;
+    scope.opDescr = "";
+    scope.opResistencia = scope.resistencia;
+    scope.opSuporte = scope.suporte;
 
     // Atualiza campos computed (expr) no escopo
     for (const v of strategy.vars) {
@@ -301,7 +299,15 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     // Gravar operação no array de operações
     // [TODO] Retornar operações "none"???
     //if (scope.op.type !== "none") {
-      operations.push({ ...scope.op });
+      operations.push({ 
+        opType: scope.opType,
+        opTimestamp: scope.opTimestamp,
+        opPrice: scope.opPrice,
+        opQty: scope.opQty,
+        opDescr: scope.opDescr,
+        opResistencia: scope.opResistencia,
+        opSuporte: scope.opSuporte,
+      });
     //}
     
     // [TODO] Qualquer lógica extra de controle/estatística
