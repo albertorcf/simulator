@@ -3,6 +3,7 @@ import { evalExpr, runExpr } from "@/utils/evalExpr";
 import { Candle } from '@/types/types';
 import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
 import { evaluateRuleGroup } from "./ruleEngine";
+import { buildScopeFromVars } from "@/lib/simulator/scopeUtils";
 
 export type RunSimulationParams = {
   candles: Candle[];
@@ -176,23 +177,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   // ─────────────────────────────────────────
 
   // Monta o escopo inicial a partir de strategy.vars
-  let scope: Record<string, any> = {};
-
-  for (const v of strategy.vars) {
-    if (v.type === "state" || v.type === "candle") {
-      scope[v.name] = v.value;
-    } else if (v.type === "computed" && v.value !== undefined) {
-      scope[v.name] = v.value;
-    } else if (v.type === "computed" && v.expr) {
-      try {
-        scope[v.name] = evalExpr(v.expr, scope);
-      } catch (e) {
-        console.warn(`❌ Erro ao avaliar expressão para ${v.name}:`, e);
-        scope[v.name] = null;
-      }
-    }
-    // Actions não são inicializadas aqui, só referenciadas depois
-  }
+  let scope = buildScopeFromVars(strategy.vars);
 
   // Candles
   scope.candles = candles;
