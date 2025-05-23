@@ -4,63 +4,23 @@ import { useState } from "react";
 import { RuleGroupType } from "react-querybuilder";
 import { QueryBuilderEditor, Listbox } from "visual-editor";
 import { evaluateRuleGroup, executeActions, runUdf } from "@/lib/simulator/ruleEngine";
-import { userDefinedFunctions, UserDefinedFunction, UdfBlock } from "@/data/strategies/udfs"; // <-- ajuste aqui
+import { userDefinedFunctions, UserDefinedFunction, UdfBlock } from "@/data/strategies/udfs";
+import { buildScopeFromVars } from "@/lib/simulator/scopeUtils";
+import { baseStrategy } from "@/data/strategies/baseStrategy"; // <-- adicione esta linha
 
-/*
-Simular essa função no QueryBuilderEditor:
+// Remova a definição de fields e testScope antigos
 
-function reset(scope: any) {
-  // Bloco 1
-  resistencia = close + delta;
-  suporte = close - delta;
-  opResistencia = resistencia;
-  opSuporte = suporte;
-  iddleCount = iddleInit;  // zera contador de iterações iddle (inativas)
-  break = true;            // não avaliar mais nenhuma regra depois dessa
-  
-  // Bloco 2
-  if (candleOp === 'I') {
-    candleOp = "R";
-    opType = 'reset';
-  }
-}
-*/
+// Use vars do baseStrategy para montar os fields e o scope de teste
+const vars = baseStrategy.vars;
 
-// Remova as definições duplicadas de UserDefinedFunction, UdfBlock e userDefinedFunctions daqui!
+// Gera os fields para o QueryBuilderEditor a partir de vars
+const fields = vars.map(v => ({
+  name: v.name,
+  label: v.name
+}));
 
-// Campos de exemplo (ajuste conforme seu contexto real)
-const fields = [
-  { name: "close", label: "close" },
-  { name: "delta", label: "delta" },
-  { name: "resistencia", label: "resistencia" },
-  { name: "suporte", label: "suporte" },
-  { name: "candleOp", label: "candleOp" },
-  { name: "iddleCount", label: "iddleCount" },
-  { name: "iddleInit", label: "iddleInit" },
-  { name: "opResistencia", label: "opResistencia" },
-  { name: "opSuporte", label: "opSuporte" },
-  { name: "break", label: "break" },
-  { name: "opType", label: "opType" },
-  { name: "true", label: "true" },
-  { name: "returnValue", label: "returnValue" },
-];
-
-// Exemplo de scope para teste (ajuste conforme necessário)
-const testScope = {
-  close: 100,
-  delta: 10,
-  resistencia: 0, // valor diferente do resultado esperado
-  suporte: 0,     // valor diferente do resultado esperado
-  candleOp: "I",
-  iddleCount: 5,
-  iddleInit: 10,
-  opResistencia: 0,
-  opSuporte: 0,
-  break: false,
-  opType: "",
-  true: true,
-  returnValue: null,
-};
+// Monta o scope de teste a partir de vars
+const testScope = buildScopeFromVars(vars);
 
 export default function UdfPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
