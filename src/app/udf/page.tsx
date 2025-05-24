@@ -8,8 +8,6 @@ import { userDefinedFunctions, UserDefinedFunction, UdfBlock } from "@/data/stra
 import { buildScopeFromVars } from "@/lib/simulator/scopeUtils";
 import { baseStrategy } from "@/data/strategies/baseStrategy"; // <-- adicione esta linha
 
-// Remova a definição de fields e testScope antigos
-
 // Use vars do baseStrategy para montar os fields e o scope de teste
 const vars = baseStrategy.vars;
 
