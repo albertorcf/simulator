@@ -34,7 +34,8 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
             { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
             { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
             { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
-            { field: "break", operator: "=", valueSource: "value", value: "true" }
+            { field: "break", operator: "=", valueSource: "value", value: "true" },
+            { field: "returnValue", operator: "=", valueSource: "value", value: "true" },
           ]
         }
       },
