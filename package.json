@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "clear && pnpm exec jest"
+    "test": "clear && pnpm exec jest",
+    "commit-info": "echo && echo '────────────────────────────────────────' && echo \"## Referências\\n\\n### Último commit\\n- Hash: \\`$(git log -1 --format='%h')\\`\\n- [Ver commit no GitHub]($(git remote get-url origin | sed 's/git@github.com:/https:\\/\\/github.com\\//' | sed 's/\\.git$//')/commit/$(git log -1 --format='%H'))\\n\\n### Arquivos alterados\" && git show --name-only --format=\"\" HEAD | sed 's/^/- `/' | sed 's/$/`/' && echo '────────────────────────────────────────'" 
   },
   "dependencies": {
     "@radix-ui/react-slider": "^1.3.2",
