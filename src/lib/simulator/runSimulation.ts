@@ -2,8 +2,9 @@
 import { evalExpr, runExpr } from "@/utils/evalExpr";
 import { Candle } from '@/types/types';
 import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
-import { evaluateRuleGroup } from "./ruleEngine";
+import { evaluateRuleGroup, runUdf } from "./ruleEngine";
 import { buildScopeFromVars } from "@/lib/simulator/scopeUtils";
+import { userDefinedFunctions } from "@/data/strategies/udfs";
 
 export type RunSimulationParams = {
   candles: Candle[];
@@ -120,6 +121,7 @@ function sell(scope: any) {
   scope.opSuporte = scope.suporte;
 }
 
+/*
 function reset(scope: any) {
   const close = scope.close;
   const delta = scope.delta;
@@ -135,6 +137,7 @@ function reset(scope: any) {
   scope.opResistencia = scope.resistencia;
   scope.opSuporte = scope.suporte;
 }
+*/
 
 function resetR(scope: any) {
   const close = scope.close;
@@ -194,7 +197,16 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   // Funções
   scope.buy = () => buy(scope);
   scope.sell = () => sell(scope);
-  scope.reset = () => reset(scope);
+  
+  const udfReset = userDefinedFunctions.find(u => u.name === "reset");
+  scope.reset = () => {
+    if (udfReset) {
+      scope.returnValue = undefined;  // Limpa o returnValue antes de executar
+      runUdf(udfReset.blocks, scope);
+      return scope.returnValue;
+    }
+  };
+  
   scope.resetR = () => resetR(scope);
   scope.resetS = () => resetS(scope);
 
@@ -316,4 +328,4 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 }
 
 // Exportar as funções auxiliares para testes
-export { buy, sell, reset, resetR, resetS };
+export { buy, sell, resetR, resetS };

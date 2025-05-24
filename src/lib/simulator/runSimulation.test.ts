@@ -5,7 +5,9 @@ import {
   runSimulation, 
   ruleGroupToString 
 } from './runSimulation';
-import { buy, sell, reset, resetR, resetS } from './runSimulation';
+import { buy, sell, resetR, resetS } from './runSimulation';
+import { userDefinedFunctions } from "../../data/strategies/udfs";
+import { runUdf } from "./ruleEngine";
 
 // Desabilita console.log para todos os testes deste arquivo
 /*
@@ -183,6 +185,7 @@ describe('Funções de operação do simulador', () => {
       time: 123,
       candleOp: "",
       lastOp: "",
+      true: true,
     };
   });
 
@@ -205,7 +208,21 @@ describe('Funções de operação do simulador', () => {
   it('reset deve atualizar suporte e resistência', () => {
     scope.close = 20;
     scope.candleOp = "I";
-    reset(scope);
+
+    // Encontra a UDF reset
+    const udfReset = userDefinedFunctions.find(u => u.name === "reset");
+    
+    // Cria o wrapper no escopo para simular o comportamento do simulador
+    scope.reset = () => {
+      if (udfReset) {
+        scope.returnValue = undefined;
+        runUdf(udfReset.blocks, scope);
+        return scope.returnValue;
+      }
+    };
+
+    scope.reset();
+
     expect(scope.resistencia).toBe(22);
     expect(scope.suporte).toBe(18);
     expect(scope.candleOp).toBe("R");
