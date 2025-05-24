@@ -1,5 +1,7 @@
 // lib/simulator/scopeUtils.ts
 import { evalExpr } from "@/utils/evalExpr";
+import { UserDefinedFunction } from "@/data/strategies/udfs"; // Importar o tipo
+import { runUdf } from "@/lib/simulator/ruleEngine"; // Importar runUdf
 
 export function buildScopeFromVars(vars: any[]): Record<string, any> {
   const scope: Record<string, any> = {};
@@ -19,4 +21,16 @@ export function buildScopeFromVars(vars: any[]): Record<string, any> {
     // Funções podem ser adicionadas aqui se necessário
   }
   return scope;
+}
+
+export function addUdfsToScope(scope: Record<string, any>, udfs: UserDefinedFunction[]): void {
+  for (const udf of udfs) {
+    // O nome da UDF vira uma função no scope
+    scope[udf.name] = () => {
+        // Limpa o returnValue antes de cada execução da UDF
+      scope.returnValue = undefined;
+      runUdf(udf.blocks, scope); // runUdf opera sobre o 'scope'
+      return scope.returnValue;
+    };
+  }
 }

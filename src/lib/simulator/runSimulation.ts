@@ -3,8 +3,8 @@ import { evalExpr, runExpr } from "@/utils/evalExpr";
 import { Candle } from '@/types/types';
 import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
 import { evaluateRuleGroup, runUdf } from "./ruleEngine";
-import { buildScopeFromVars } from "@/lib/simulator/scopeUtils";
-import { userDefinedFunctions } from "@/data/strategies/udfs";
+import { buildScopeFromVars, addUdfsToScope } from "@/lib/simulator/scopeUtils"; // Adicionar import
+import { userDefinedFunctions } from "@/data/strategies/udfs"; // Manter import
 
 export type RunSimulationParams = {
   candles: Candle[];
@@ -121,24 +121,6 @@ function sell(scope: any) {
   scope.opSuporte = scope.suporte;
 }
 
-/*
-function reset(scope: any) {
-  const close = scope.close;
-  const delta = scope.delta;
-  scope.resistencia = close + delta;
-  scope.suporte = close - delta;
-
-  scope.iddleCount = scope.iddleInit;  // zera contador de iterações iddle (inativas)
-  
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-    scope.opType = 'reset';
-  }
-  scope.opResistencia = scope.resistencia;
-  scope.opSuporte = scope.suporte;
-}
-*/
-
 function resetR(scope: any) {
   const close = scope.close;
   const delta = scope.delta;
@@ -194,21 +176,16 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
     scope.resistencia = candles[0].close + scope.delta;
   }
 
-  // Funções
+  // Funções hard-coded (serão gradualmente substituídas por UDFs)
   scope.buy = () => buy(scope);
   scope.sell = () => sell(scope);
-  
-  const udfReset = userDefinedFunctions.find(u => u.name === "reset");
-  scope.reset = () => {
-    if (udfReset) {
-      scope.returnValue = undefined;  // Limpa o returnValue antes de executar
-      runUdf(udfReset.blocks, scope);
-      return scope.returnValue;
-    }
-  };
-  
+  // scope.reset já será tratado pelas UDFs se existir uma UDF "reset"
   scope.resetR = () => resetR(scope);
   scope.resetS = () => resetS(scope);
+
+  // Adiciona todas as UDFs definidas em udfs.ts ao scope
+  // Isso sobrescreverá qualquer função de mesmo nome definida anteriormente (ex: se houver uma UDF "buy")
+  addUdfsToScope(scope, userDefinedFunctions);
 
   // Array de operações por candle
   const operations: Operation[] = [{
