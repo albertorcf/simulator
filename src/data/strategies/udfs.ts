@@ -19,7 +19,7 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
     descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R' se 'I'",
     blocks: [
       {
-        descr: "Bloco 1",
+        descr: "Bloco 1: Atualiza S/R e iddleCount",
         condition: {
           combinator: "and",
           rules: [
@@ -34,13 +34,13 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
             { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
             { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
             { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
-            { field: "break", operator: "=", valueSource: "value", value: "true" },
+            // { field: "break", operator: "=", valueSource: "value", value: "true" }, // break é específico da regra principal, não da UDF em si
             { field: "returnValue", operator: "=", valueSource: "value", value: "true" },
           ]
         }
       },
       {
-        descr: "Bloco 2",
+        descr: "Bloco 2: Atualiza candleOp e opType se candleOp era 'I'",
         condition: {
           combinator: "and",
           rules: [
@@ -57,6 +57,49 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
       }
     ]
   },
+
+  {
+    name: "buy",
+    descr: "Executa uma operação de compra, atualizando saldos e registrando a operação.",
+    blocks: [
+      {
+        descr: "Bloco principal de compra",
+        condition: { // Condição sempre verdadeira, a lógica de quando comprar fica na estratégia principal
+          combinator: "and",
+          rules: [
+            { field: "true", operator: "=", valueSource: "value", value: true }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            // Cálculos e atualizações de saldo
+            // feeSOL = qty * taxa; netSOL = qty - feeSOL; costUSD = qty * close;
+            // saldoSOL += netSOL; saldoUSDT -= costUSD;
+            { field: "saldoSOL", operator: "=", valueSource: "value", value: "expr: saldoSOL + (qty - (qty * taxa))" },
+            { field: "saldoUSDT", operator: "=", valueSource: "value", value: "expr: saldoUSDT - (qty * close)" },
+
+            // Atualizações de estado
+            { field: "lastOp", operator: "=", valueSource: "value", value: "C" },
+            { field: "candleOp", operator: "=", valueSource: "value", value: "C" },
+            { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
+
+            // Registro da operação
+            { field: "opType", operator: "=", valueSource: "value", value: "buy" },
+            { field: "opTimestamp", operator: "=", valueSource: "field", value: "time" },
+            { field: "opPrice", operator: "=", valueSource: "field", value: "close" },
+            { field: "opQty", operator: "=", valueSource: "value", value: "expr: qty - (qty * taxa)" }, // netSOL
+            { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
+            { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
+
+            // Definir um valor de retorno se necessário, ou deixar undefined
+            { field: "returnValue", operator: "=", valueSource: "value", value: true }
+          ]
+        }
+      }
+    ]
+  },
+  
   {
     name: "exemplo2",
     descr: "Exemplo de outra função UDF",

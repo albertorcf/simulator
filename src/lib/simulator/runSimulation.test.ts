@@ -5,7 +5,7 @@ import {
   runSimulation, 
   ruleGroupToString 
 } from './runSimulation';
-import { buy, sell, resetR, resetS } from './runSimulation';
+import { sell, resetR, resetS } from './runSimulation';
 import { userDefinedFunctions } from "../../data/strategies/udfs";
 import { runUdf } from "./ruleEngine";
 
@@ -181,7 +181,6 @@ describe('Funções de operação do simulador', () => {
       suporte: 8,
       iddleInit: 5,
       iddleCount: 3,
-      op: {},
       time: 123,
       candleOp: "",
       lastOp: "",
@@ -190,11 +189,33 @@ describe('Funções de operação do simulador', () => {
   });
 
   it('buy deve comprar SOL e debitar USDT', () => {
-    buy(scope);
+    // Encontra a UDF buy
+    const udfBuy = userDefinedFunctions.find(u => u.name === "buy");
+    
+    // Cria o wrapper no escopo para simular o comportamento do simulador chamando a UDF
+    scope.buy = () => {
+      if (udfBuy) {
+        scope.returnValue = undefined; // Limpa o returnValue antes de executar
+        runUdf(udfBuy.blocks, scope);
+        return scope.returnValue;
+      }
+    };
+
+    scope.buy(); // Chama a função buy definida no scope (que agora executa a UDF)
+
     expect(scope.saldoSOL).toBeCloseTo(1 + 0.5 - 0.5 * 0.01); // netSOL
     expect(scope.saldoUSDT).toBeCloseTo(100 - 0.5 * 10); // costUSD
     expect(scope.lastOp).toBe("C");
     expect(scope.opType).toBe("buy");
+    // Adicione aqui outras asserções que eram cobertas pela função buy original, se houver
+    // Por exemplo, para os campos opTimestamp, opPrice, opQty, opResistencia, opSuporte, candleOp, iddleCount
+    expect(scope.opTimestamp).toBe(scope.time);
+    expect(scope.opPrice).toBe(scope.close);
+    expect(scope.opQty).toBeCloseTo(0.5 - (0.5 * 0.01)); // netSOL
+    expect(scope.opResistencia).toBe(12); // Valor inicial do scope
+    expect(scope.opSuporte).toBe(8);     // Valor inicial do scope
+    expect(scope.candleOp).toBe("C");
+    expect(scope.iddleCount).toBe(scope.iddleInit);
   });
 
   it('sell deve vender SOL e creditar USDT', () => {

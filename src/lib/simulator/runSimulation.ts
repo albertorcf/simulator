@@ -4,7 +4,7 @@ import { Candle } from '@/types/types';
 import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
 import { evaluateRuleGroup, runUdf } from "./ruleEngine";
 import { buildScopeFromVars, addUdfsToScope } from "@/lib/simulator/scopeUtils"; // Adicionar import
-import { userDefinedFunctions } from "@/data/strategies/udfs"; // Manter import
+import { userDefinedFunctions } from "@/data/strategies/udfs";
 
 export type RunSimulationParams = {
   candles: Candle[];
@@ -69,7 +69,7 @@ export function ruleGroupToString(group: RuleGroupTypeAny): string {
 // ToDo: aceitar parâmetros e returnar um valor
 // ───────────────────────────────────────────────────────────────────
 
-
+/*
 function buy(scope: any) {
   const time   =  scope.time;
   const feeRate = scope.taxa || 0.001;
@@ -95,6 +95,7 @@ function buy(scope: any) {
   scope.opResistencia = scope.resistencia;
   scope.opSuporte = scope.suporte;
 }
+*/
 
 function sell(scope: any) {
   const time = scope.time;
@@ -177,7 +178,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   }
 
   // Funções hard-coded (serão gradualmente substituídas por UDFs)
-  scope.buy = () => buy(scope);
+  //scope.buy = () => buy(scope);
   scope.sell = () => sell(scope);
   // scope.reset já será tratado pelas UDFs se existir uma UDF "reset"
   scope.resetR = () => resetR(scope);
@@ -305,4 +306,4 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 }
 
 // Exportar as funções auxiliares para testes
-export { buy, sell, resetR, resetS };
+export { sell, resetR, resetS };
