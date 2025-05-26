@@ -68,36 +68,7 @@ export function ruleGroupToString(group: RuleGroupTypeAny): string {
 // que passam o parâmetro scope para acesso ao contexto dentro da função desacoplada.
 // ToDo: aceitar parâmetros e returnar um valor
 // ───────────────────────────────────────────────────────────────────
-
-/*
-function resetR(scope: any) {
-  const close = scope.close;
-  const delta = scope.delta;
-  scope.resistencia = close + delta;
-  
-  scope.iddleCount = scope.iddleInit;
-
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-    scope.opType = 'reset';
-  }
-  scope.opResistencia = scope.resistencia;
-}
-
-function resetS(scope: any) {
-  const close = scope.close;
-  const delta = scope.delta;
-  scope.suporte = close - delta;
-
-  scope.iddleCount = scope.iddleInit;
-
-  if (scope.candleOp === 'I') {
-    scope.candleOp = "R";
-    scope.opType = 'reset';
-  }
-  scope.opSuporte = scope.suporte;
-}
-*/
+// Migradas para UDFs!!!
 
 // ───────────────────────────────────────────────────────────────────
 // ────────────────────────── runSimulation ──────────────────────────
@@ -129,7 +100,6 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   // Funções hard-coded (serão gradualmente substituídas por UDFs)
   //scope.buy = () => buy(scope);
   //scope.sell = () => sell(scope);
-  // scope.reset já será tratado pelas UDFs se existir uma UDF "reset"
   // scope.resetR = () => resetR(scope); // <--- Comentar esta linha
   // scope.resetS = () => resetS(scope); // <--- Comentar esta linha
 
