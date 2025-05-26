@@ -13,7 +13,7 @@ export default function Home() {
       <div className="flex flex-col sm:flex-row gap-6 mt-6"> {/* Espaçamento entre os botões e responsividade */}
         <Link href="/teste" legacyBehavior>
           <a className="bg-sky-200 hover:bg-sky-300 font-semibold py-3 px-8 rounded-lg text-lg text-center shadow-lg hover:shadow-xl transition-all duration-200 ease-in-out transform hover:-translate-y-1">
-            🧪 Simulações
+          📈 Simulações
           </a>
         </Link>
         <Link href="/udf" legacyBehavior>
