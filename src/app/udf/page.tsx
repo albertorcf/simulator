@@ -201,10 +201,11 @@ export default function UdfPage() {
       <div className="mb-2">
         <div className="font-semibold mb-1">Ações</div>
         <QueryBuilderEditor
-          fields={fields}
-          query={block.actions}
-          onQueryChange={handleActionsChange}
-          className="bg-red-100"
+          fields={fields} // Seus campos
+          query={block.actions} // As ações do bloco selecionado
+          onQueryChange={handleActionsChange} // Seu handler
+          className="bg-red-100" // Sua classe
+          showAddGroup={false} // <--- VERIFIQUE SE ESTÁ AQUI
         />
         <button
           className="mt-2 px-3 py-1 rounded bg-blue-600 text-white"
