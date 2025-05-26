@@ -294,10 +294,10 @@ export default function TestePage() {
   return (
     <main className="flex flex-col items-center justify-center p-4">
 
-      <h1 className="text-3xl font-bold mb-1">📈 Gráfico SOLUSDT (últimos 7 dias)</h1>
+      <h1 className="w-full max-w-4xl px-2 py-2 text-3xl font-bold mb-4 text-center bg-gray-50 rounded-md border border-gray-200">📈 Gráfico SOLUSDT (últimos 7 dias)</h1>
 
       {/* Gráfico de linha com dados de candles */}
-      <div className="w-full max-w-4xl h-[400px] mb-1 px-2">
+      <div className="w-full max-w-4xl h-[400px] mb-1 px-2 py-2 bg-gray-50 rounded-md border border-gray-200">
         <ApexChart
           type="line"
           height="100%"

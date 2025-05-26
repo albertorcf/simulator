@@ -98,6 +98,7 @@ export default function UdfPage() {
 
   return (
     <main className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-center bg-gray-100 rounded-md py-2 px-4 border border-gray-300">⚙️ Editor de UDFs</h1>
       
       {/* Listboxs e botão run UDF */}
       <div className="flex flex-row gap-4 mb-2">
