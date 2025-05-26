@@ -5,7 +5,7 @@ import {
   runSimulation, 
   ruleGroupToString 
 } from './runSimulation';
-import { sell, resetR, resetS } from './runSimulation';
+import { resetR, resetS } from './runSimulation';
 import { userDefinedFunctions } from "../../data/strategies/udfs";
 import { runUdf } from "./ruleEngine";
 
@@ -219,11 +219,53 @@ describe('Funções de operação do simulador', () => {
   });
 
   it('sell deve vender SOL e creditar USDT', () => {
-    sell(scope);
+    // A função addUdfsToScope já terá adicionado a UDF sell ao scope
+    // Se você não chamou addUdfsToScope no beforeEach, precisará fazer o wrapper aqui:
+    /*
+    const udfSell = userDefinedFunctions.find(u => u.name === "sell");
+    scope.sell = () => {
+      if (udfSell) {
+        scope.returnValue = undefined;
+        runUdf(udfSell.blocks, scope);
+        return scope.returnValue;
+      }
+    };
+    */
+    
+    // Assumindo que addUdfsToScope é chamado em algum lugar antes (ex: no beforeEach ou no runSimulation)
+    // Se não, o teste falhará ou usará uma função 'sell' indefinida.
+    // Para testes unitários focados apenas na UDF, o wrapper acima é mais explícito.
+    // No entanto, como estamos testando a integração, vamos confiar que addUdfsToScope
+    // foi chamado (ou ajustar o beforeEach para chamá-lo).
+
+    // Para garantir que o teste use a UDF, mesmo que addUdfsToScope não tenha sido chamado
+    // no contexto deste describe (o que é o caso aqui, pois addUdfsToScope está em runSimulation),
+    // vamos adicionar o wrapper explicitamente para este teste.
+    const udfSell = userDefinedFunctions.find(u => u.name === "sell");
+    if (udfSell) { // Adiciona verificação para o caso de a UDF não ser encontrada
+        scope.sell = () => {
+            scope.returnValue = undefined;
+            runUdf(udfSell.blocks, scope);
+            return scope.returnValue;
+        };
+    } else {
+        throw new Error("UDF 'sell' não encontrada para o teste.");
+    }
+
+    scope.sell(); // Chama a função sell definida no scope (que agora executa a UDF)
+
     expect(scope.saldoSOL).toBeCloseTo(1 - 0.5);
     expect(scope.saldoUSDT).toBeCloseTo(100 + (0.5 * 10) * (1 - 0.01)); // netUSD
     expect(scope.lastOp).toBe("V");
     expect(scope.opType).toBe("sell");
+    // Adicionar asserções para os outros campos que a UDF sell modifica
+    expect(scope.opTimestamp).toBe(scope.time);
+    expect(scope.opPrice).toBe(scope.close);
+    expect(scope.opQty).toBe(0.5); // opQty na venda é a quantidade bruta
+    expect(scope.opResistencia).toBe(12); // Valor inicial do scope
+    expect(scope.opSuporte).toBe(8);     // Valor inicial do scope
+    expect(scope.candleOp).toBe("V");
+    expect(scope.iddleCount).toBe(scope.iddleInit);
   });
 
   it('reset deve atualizar suporte e resistência', () => {

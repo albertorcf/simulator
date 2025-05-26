@@ -97,6 +97,7 @@ function buy(scope: any) {
 }
 */
 
+/*
 function sell(scope: any) {
   const time = scope.time;
   const feeRate = scope.taxa || 0.001;
@@ -121,6 +122,7 @@ function sell(scope: any) {
   scope.opResistencia = scope.resistencia;
   scope.opSuporte = scope.suporte;
 }
+*/
 
 function resetR(scope: any) {
   const close = scope.close;
@@ -179,7 +181,7 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 
   // Funções hard-coded (serão gradualmente substituídas por UDFs)
   //scope.buy = () => buy(scope);
-  scope.sell = () => sell(scope);
+  //scope.sell = () => sell(scope);
   // scope.reset já será tratado pelas UDFs se existir uma UDF "reset"
   scope.resetR = () => resetR(scope);
   scope.resetS = () => resetS(scope);
@@ -306,4 +308,4 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 }
 
 // Exportar as funções auxiliares para testes
-export { sell, resetR, resetS };
+export { resetR, resetS };
