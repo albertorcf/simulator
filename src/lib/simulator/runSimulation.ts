@@ -69,61 +69,6 @@ export function ruleGroupToString(group: RuleGroupTypeAny): string {
 // ToDo: aceitar parâmetros e returnar um valor
 // ───────────────────────────────────────────────────────────────────
 
-/*
-function buy(scope: any) {
-  const time   =  scope.time;
-  const feeRate = scope.taxa || 0.001;
-  const price   = scope.close;
-  const qty     = scope.qty;
-
-  const feeSOL = qty * feeRate;    // taxa cobrada em SOL
-  const netSOL = qty - feeSOL;     // SOL realmente creditado
-  const costUSD = qty * price;     // USDT que sai da conta
-
-  scope.saldoSOL += netSOL;
-  scope.saldoUSDT -= costUSD;
-
-  scope.lastOp = "C";
-  scope.candleOp = "C";
-  scope.iddleCount = scope.iddleInit;
-
-  // ToDo: retornar taxas calculadas para totalização
-  scope.opType = 'buy';
-  scope.opTimestamp = time;
-  scope.opPrice = price;
-  scope.opQty = netSOL;
-  scope.opResistencia = scope.resistencia;
-  scope.opSuporte = scope.suporte;
-}
-*/
-
-/*
-function sell(scope: any) {
-  const time = scope.time;
-  const feeRate = scope.taxa || 0.001;
-  const price = scope.close;
-  const qty = scope.qty;
-
-  const grossUSD = qty * price;         // USDT que você *receberia*
-  const feeUSD = grossUSD * feeRate;    // taxa cobrada em USDT
-  const netUSD = grossUSD - feeUSD;     // USDT realmente creditado
-
-  scope.saldoSOL -= qty;
-  scope.saldoUSDT += netUSD;
-
-  scope.lastOp = "V";
-  scope.candleOp = "V";
-  scope.iddleCount = scope.iddleInit;
-
-  scope.opType = 'sell';
-  scope.opTimestamp = time;
-  scope.opPrice = price;
-  scope.opQty = qty;
-  scope.opResistencia = scope.resistencia;
-  scope.opSuporte = scope.suporte;
-}
-*/
-
 function resetR(scope: any) {
   const close = scope.close;
   const delta = scope.delta;
