@@ -5,7 +5,7 @@ import {
   runSimulation, 
   ruleGroupToString 
 } from './runSimulation';
-import { resetR, resetS } from './runSimulation';
+//import { resetR, resetS } from './runSimulation';
 import { userDefinedFunctions } from "../../data/strategies/udfs";
 import { runUdf } from "./ruleEngine";
 
@@ -272,39 +272,72 @@ describe('Funções de operação do simulador', () => {
     scope.close = 20;
     scope.candleOp = "I";
 
-    // Encontra a UDF reset
     const udfReset = userDefinedFunctions.find(u => u.name === "reset");
-    
-    // Cria o wrapper no escopo para simular o comportamento do simulador
-    scope.reset = () => {
-      if (udfReset) {
+    if (udfReset) {
+      scope.reset = () => {
         scope.returnValue = undefined;
         runUdf(udfReset.blocks, scope);
         return scope.returnValue;
-      }
-    };
-
+      };
+    } else {
+        throw new Error("UDF 'reset' não encontrada para o teste.");
+    }
     scope.reset();
 
     expect(scope.resistencia).toBe(22);
     expect(scope.suporte).toBe(18);
     expect(scope.candleOp).toBe("R");
+    expect(scope.opType).toBe("reset"); // Verificar se opType também é setado
   });
 
   it('resetR deve atualizar apenas resistência', () => {
     scope.close = 30;
     scope.candleOp = "I";
-    resetR(scope);
+    const initialSuporte = scope.suporte; // Salvar valor inicial do suporte
+
+    const udfResetR = userDefinedFunctions.find(u => u.name === "resetR");
+    if (udfResetR) {
+      scope.resetR = () => {
+        scope.returnValue = undefined;
+        runUdf(udfResetR.blocks, scope);
+        return scope.returnValue;
+      };
+    } else {
+        throw new Error("UDF 'resetR' não encontrada para o teste.");
+    }
+    scope.resetR();
+
     expect(scope.resistencia).toBe(32);
+    expect(scope.suporte).toBe(initialSuporte); // Verificar se suporte não mudou
     expect(scope.candleOp).toBe("R");
+    expect(scope.opType).toBe("reset");
+    expect(scope.iddleCount).toBe(scope.iddleInit);
+    expect(scope.opResistencia).toBe(32);
   });
 
   it('resetS deve atualizar apenas suporte', () => {
     scope.close = 40;
     scope.candleOp = "I";
-    resetS(scope);
+    const initialResistencia = scope.resistencia; // Salvar valor inicial da resistencia
+
+    const udfResetS = userDefinedFunctions.find(u => u.name === "resetS");
+    if (udfResetS) {
+      scope.resetS = () => {
+        scope.returnValue = undefined;
+        runUdf(udfResetS.blocks, scope);
+        return scope.returnValue;
+      };
+    } else {
+        throw new Error("UDF 'resetS' não encontrada para o teste.");
+    }
+    scope.resetS();
+
     expect(scope.suporte).toBe(38);
+    expect(scope.resistencia).toBe(initialResistencia); // Verificar se resistencia não mudou
     expect(scope.candleOp).toBe("R");
+    expect(scope.opType).toBe("reset");
+    expect(scope.iddleCount).toBe(scope.iddleInit);
+    expect(scope.opSuporte).toBe(38);
   });
 });
 

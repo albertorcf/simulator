@@ -15,50 +15,6 @@ export type UserDefinedFunction = {
 
 export const userDefinedFunctions: UserDefinedFunction[] = [
   {
-    name: "reset",
-    descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R' se 'I'",
-    blocks: [
-      {
-        descr: "Bloco 1: Atualiza S/R e iddleCount",
-        condition: {
-          combinator: "and",
-          rules: [
-            { field: "true", operator: "=", valueSource: "value", value: true }
-          ]
-        },
-        actions: {
-          combinator: "and",
-          rules: [
-            { field: "resistencia", operator: "=", valueSource: "value", value: "expr: close + delta" },
-            { field: "suporte", operator: "=", valueSource: "value", value: "expr: close - delta" },
-            { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
-            { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
-            { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
-            // { field: "break", operator: "=", valueSource: "value", value: "true" }, // break é específico da regra principal, não da UDF em si
-            { field: "returnValue", operator: "=", valueSource: "value", value: "true" },
-          ]
-        }
-      },
-      {
-        descr: "Bloco 2: Atualiza candleOp e opType se candleOp era 'I'",
-        condition: {
-          combinator: "and",
-          rules: [
-            { field: "candleOp", operator: "=", valueSource: "value", value: "I" }
-          ]
-        },
-        actions: {
-          combinator: "and",
-          rules: [
-            { field: "candleOp", operator: "=", value: "R" },
-            { field: "opType", operator: "=", value: "reset" }
-          ]
-        }
-      }
-    ]
-  },
-
-  {
     name: "buy",
     descr: "Executa uma operação de compra, atualizando saldos e registrando a operação.",
     blocks: [
@@ -142,6 +98,133 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
       }
     ]
   },
+
+  {
+    name: "reset",
+    descr: "Atualiza suporte e resistência para close -+ delta, candleOp = 'R' se 'I'",
+    blocks: [
+      {
+        descr: "Bloco 1: Atualiza S/R e iddleCount",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "true", operator: "=", valueSource: "value", value: true }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "resistencia", operator: "=", valueSource: "value", value: "expr: close + delta" },
+            { field: "suporte", operator: "=", valueSource: "value", value: "expr: close - delta" },
+            { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
+            { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
+            { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
+            // { field: "break", operator: "=", valueSource: "value", value: "true" }, // break é específico da regra principal, não da UDF em si
+            { field: "returnValue", operator: "=", valueSource: "value", value: "true" },
+          ]
+        }
+      },
+      {
+        descr: "Bloco 2: Atualiza candleOp e opType se candleOp era 'I'",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", valueSource: "value", value: "I" }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", value: "R" },
+            { field: "opType", operator: "=", value: "reset" }
+          ]
+        }
+      }
+    ]
+  },
+
+  {
+    name: "resetR",
+    descr: "Atualiza resistência para close + delta, e candleOp = 'R' se anteriormente 'I'.",
+    blocks: [
+      {
+        descr: "Bloco 1: Atualiza resistencia e iddleCount",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "true", operator: "=", valueSource: "value", value: true }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "resistencia", operator: "=", valueSource: "value", value: "expr: close + delta" },
+            { field: "opResistencia", operator: "=", valueSource: "field", value: "resistencia" },
+            { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
+            { field: "returnValue", operator: "=", valueSource: "value", value: true },
+          ]
+        }
+      },
+      {
+        descr: "Bloco 2: Atualiza candleOp e opType se candleOp era 'I'",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", valueSource: "value", value: "I" }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", valueSource: "value", value: "R" },
+            { field: "opType", operator: "=", valueSource: "value", value: "reset" } // Mantendo 'reset' para consistência com a lógica original
+          ]
+        }
+      }
+    ]
+  },
+
+  {
+    name: "resetS",
+    descr: "Atualiza suporte para close - delta, e candleOp = 'R' se anteriormente 'I'.",
+    blocks: [
+      {
+        descr: "Bloco 1: Atualiza suporte e iddleCount",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "true", operator: "=", valueSource: "value", value: true }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "suporte", operator: "=", valueSource: "value", value: "expr: close - delta" },
+            { field: "opSuporte", operator: "=", valueSource: "field", value: "suporte" },
+            { field: "iddleCount", operator: "=", valueSource: "field", value: "iddleInit" },
+            { field: "returnValue", operator: "=", valueSource: "value", value: true },
+          ]
+        }
+      },
+      {
+        descr: "Bloco 2: Atualiza candleOp e opType se candleOp era 'I'",
+        condition: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", valueSource: "value", value: "I" }
+          ]
+        },
+        actions: {
+          combinator: "and",
+          rules: [
+            { field: "candleOp", operator: "=", valueSource: "value", value: "R" },
+            { field: "opType", operator: "=", valueSource: "value", value: "reset" } // Mantendo 'reset'
+          ]
+        }
+      }
+    ]
+  },
+  
   {
     name: "exemplo2",
     descr: "Exemplo de outra função UDF",

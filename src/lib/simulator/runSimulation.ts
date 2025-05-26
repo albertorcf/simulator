@@ -69,6 +69,7 @@ export function ruleGroupToString(group: RuleGroupTypeAny): string {
 // ToDo: aceitar parâmetros e returnar um valor
 // ───────────────────────────────────────────────────────────────────
 
+/*
 function resetR(scope: any) {
   const close = scope.close;
   const delta = scope.delta;
@@ -96,6 +97,7 @@ function resetS(scope: any) {
   }
   scope.opSuporte = scope.suporte;
 }
+*/
 
 // ───────────────────────────────────────────────────────────────────
 // ────────────────────────── runSimulation ──────────────────────────
@@ -128,8 +130,8 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
   //scope.buy = () => buy(scope);
   //scope.sell = () => sell(scope);
   // scope.reset já será tratado pelas UDFs se existir uma UDF "reset"
-  scope.resetR = () => resetR(scope);
-  scope.resetS = () => resetS(scope);
+  // scope.resetR = () => resetR(scope); // <--- Comentar esta linha
+  // scope.resetS = () => resetS(scope); // <--- Comentar esta linha
 
   // Adiciona todas as UDFs definidas em udfs.ts ao scope
   // Isso sobrescreverá qualquer função de mesmo nome definida anteriormente (ex: se houver uma UDF "buy")
@@ -253,4 +255,4 @@ export function runSimulation(params: RunSimulationParams): SimulationResult | n
 }
 
 // Exportar as funções auxiliares para testes
-export { resetR, resetS };
+// export { resetR, resetS }; // <--- Comentar ou remover esta linha
