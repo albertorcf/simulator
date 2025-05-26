@@ -74,6 +74,7 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
           combinator: "and",
           rules: [
             // Cálculos e atualizações de saldo
+            // Taxa cobrada em SOL
             // feeSOL = qty * taxa; netSOL = qty - feeSOL; costUSD = qty * close;
             // saldoSOL += netSOL; saldoUSDT -= costUSD;
             { field: "saldoSOL", operator: "=", valueSource: "value", value: "expr: saldoSOL + (qty - (qty * taxa))" },
@@ -99,7 +100,7 @@ export const userDefinedFunctions: UserDefinedFunction[] = [
       }
     ]
   },
-  
+
   {
     name: "exemplo2",
     descr: "Exemplo de outra função UDF",
