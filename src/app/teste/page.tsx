@@ -24,13 +24,26 @@ export default function TestePage() {
   const [resistencia, setResistencia] = useState(120);
 
   // 📍 anotações de pontos (compras / vendas)
-  const [pointAnnotations, setPointAnnotations] = useState<any[]>([]);
+  const [pointAnnotations, setPointAnnotations] = useState<
+    {
+      x: number;
+      y: number;
+      marker: {
+        size: number;
+        fillColor: string;
+        strokeColor: string;
+        strokeWidth: number;
+        shape: string;
+      };
+    }[]
+  >([]);
 
   // ── linha vertical (cursor da simulação) ──
   const [cursorX, setCursorX] = useState<number | null>(null);
   const [position, setPosition] = useState<number>(0);
   
-  const [taxa, setTaxa] = useState<number>(0.001);
+  // const [taxa, setTaxa] = useState<number>(0.001);
+  const [taxa] = useState<number>(0.001); // 'setTaxa' não é usado
 
   const [simulando, setSimulando] = useState(false);
   const [delaySec, setDelaySec] = useState<number>(0);  // ⏱️ delay em segundos (aceita frações, ex: 0.5 ⇒ 500 ms)
@@ -52,7 +65,7 @@ export default function TestePage() {
   useEffect(() => {
     setCondQuery(rules[selectedRuleIndex].condition);
     setActionQuery(rules[selectedRuleIndex].action);
-  }, [selectedRuleIndex]);
+  }, [selectedRuleIndex, rules]); // Adiciona 'rules' como dependência
 
   // Função para atualizar a regra ao trocar de seleção
   function handleSelectRule(newIndex: number) {
@@ -63,7 +76,15 @@ export default function TestePage() {
   }
 
   // Função para montar os campos do editor
-  function buildFieldList(vars: any[]) {
+  function buildFieldList(vars: {
+    name: string;
+    label?: string;
+    datatype?: string;
+    descr?: string;
+    valueSources?: string[];
+    type?: string;
+    sideEffect?: boolean;
+  }[]) {
     return vars.map(v => ({
       name: v.name,
       label: v.name,
@@ -86,9 +107,12 @@ export default function TestePage() {
   // ─── helper para “dormir” ────────────────────────────
   const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
-  const [estrategiaTexto, setEstrategiaTexto] = useState(
+  // const [estrategiaTexto, setEstrategiaTexto] = useState(
+  //   JSON5.stringify(baseStrategy, null, 2)
+  // );
+  const [estrategiaTexto] = useState(
     JSON5.stringify(baseStrategy, null, 2)
-  );
+  ); // 'setEstrategiaTexto' não é usado
 
   /** 
   * Lê candles de acordo com o bloco `candles` do JSON.
@@ -191,7 +215,7 @@ export default function TestePage() {
       else {
         // • modo slow‑motion
         setPointAnnotations([]);
-        for (let [index, op] of operationsRef.current.entries()) {
+        for (const [index, op] of operationsRef.current.entries()) {
           if (cancelRef.current) break;
 
           // move linha vertical
@@ -228,10 +252,9 @@ export default function TestePage() {
       // 📊 RESULTADOS DA SIMULAÇÃO
       console.log("📊 Resultado:", result);
 
-      result.operations.forEach((op, i) => {
+      result.operations.forEach((op) => {
         if (op.opType !== "none") {
           const dataHora = formatDateTime(new Date(op.opTimestamp));
-
           const emoji = op.opType === "buy" ? "🟢" : "🔴";
           const tipo = op.opType.toUpperCase();
           console.log(`${emoji} ${dataHora} — ${tipo} @ ${op.opPrice.toFixed(2)} (${op.opQty})`);
