@@ -1,23 +1,52 @@
 // apps/simulator/src/app/query-builder/page.tsx
 "use client";
 import { useState, useEffect } from "react";
-import { RuleGroupType } from "react-querybuilder";
+import { RuleGroupType } from "react-querybuilder"; // Certifique-se que RuleType também seja importado se necessário ou usado internamente por RuleGroupType
 import { QueryBuilderEditor, Listbox } from "visual-editor";
 
 // Carrega a estratégia de exemplo
 import { baseStrategy } from "@/data/strategies/baseStrategy";
-const { vars, rules } = baseStrategy;
 
-// Separe as variáveis por tipo
-const init = vars.filter(v => v.type === "state" || v.type === "candle");
-const varsCondition = vars.filter(v => v.type === "computed" && !v.name.endsWith("()"));
-const varsAction = vars.filter(v => v.type === "action");
+// Define a type for the items in the 'vars' array
+interface VarItem {
+  name: string;
+  type: string;
+  expr?: string;
+  value?: string | number | boolean; // Ajuste este tipo se 'value' puder ter outros tipos
+}
 
-console.log('vars =', vars)
-console.log('init =', init)
-console.log('varsCondition =', varsCondition)
-console.log('varsAction =', varsAction)
-console.log('rules =', rules)
+// 1. Renomeie as importações originais para evitar conflito
+const { vars: originalVars, rules: originalRules } = baseStrategy;
+
+// 2. Defina uma interface para as regras que o componente usará,
+//    garantindo que condition e action sejam RuleGroupType.
+interface ComponentRule {
+  descr: string; // Mantenha outras propriedades que suas regras possuem
+  // Adicione aqui outras propriedades que existem em cada objeto de 'originalRules'
+  // Exemplo: id?: string | number;
+  condition: RuleGroupType;
+  action: RuleGroupType;
+}
+
+// 3. Crie o novo array 'rules' para ser usado pelo componente.
+//    Mapeie 'originalRules' para 'ComponentRule[]', fazendo um type assertion
+//    para 'condition' e 'action'.
+const rules: ComponentRule[] = originalRules.map(rule => ({
+  ...rule, // Isso copia todas as propriedades da regra original
+  condition: rule.condition as RuleGroupType, // Assegura que 'condition' é tratada como RuleGroupType
+  action: rule.action as RuleGroupType,     // Assegura que 'action' é tratada como RuleGroupType
+}));
+
+// 4. Use 'originalVars' para definir init, varsCondition, varsAction
+const init: VarItem[] = (originalVars as VarItem[]).filter(v => v.type === "state" || v.type === "candle");
+const varsCondition: VarItem[] = (originalVars as VarItem[]).filter(v => v.type === "computed" && !v.name.endsWith("()"));
+const varsAction: VarItem[] = (originalVars as VarItem[]).filter(v => v.type === "action");
+
+console.log('vars =', originalVars); // Use originalVars para logging se desejar
+console.log('init =', init);
+console.log('varsCondition =', varsCondition);
+console.log('varsAction =', varsAction);
+console.log('rules (component) =', rules); // Este é o array 'rules' que o componente usará
 
 const actionOperators = [
   { name: "=", label: "=" },
@@ -31,8 +60,8 @@ export default function QueryBuilderPage() {
 
   const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
 
-  //const selectedRule = rules[selectedRuleIndex];
-
+  // Agora, rules[selectedRuleIndex].condition e .action são do tipo RuleGroupType,
+  // tornando a inicialização e as atribuições subsequentes compatíveis.
   const [condQuery, setCondQuery] = useState<RuleGroupType>(
     rules[selectedRuleIndex].condition
   );
@@ -47,9 +76,10 @@ export default function QueryBuilderPage() {
   }, [selectedRuleIndex]);
 
   function handleSelectRule(newIndex: number) {
-    // Atualiza o objeto da regra atual com a condição e ação editada
-    rules[selectedRuleIndex].condition = condQuery as any;
-    rules[selectedRuleIndex].action = actionQuery as any;
+    // Esta atribuição agora é válida porque ambos os lados da atribuição
+    // (rules[selectedRuleIndex].condition e condQuery) são do tipo RuleGroupType.
+    rules[selectedRuleIndex].condition = condQuery;
+    rules[selectedRuleIndex].action = actionQuery;
 
     // Muda o índice selecionado
     setSelectedRuleIndex(newIndex);
@@ -62,23 +92,6 @@ export default function QueryBuilderPage() {
       valueSources: name.endsWith("()") ? ['value'] : ['value', 'field'],
     }));
   }
-
-  // init: mostra expr se houver, senão mostra valor
-  const initDisplay = init.map((v: any) =>
-    v.expr ? `${v.name} (${v.expr})` :
-      v.value !== undefined ? `${v.name}: ${String(v.value)}` :
-        v.name
-  );
-
-  // varsCondition: mostra expr se houver
-  const varsConditionDisplay = varsCondition.map((v: any) =>
-    v.expr ? `${v.name} (${v.expr})` : v.name
-  );
-
-  // varsAction: por enquanto, apenas nome
-  const varsActionDisplay = varsAction.map((v: any) =>
-    v.expr ? `${v.name} (${v.expr})` : v.name
-  );
 
   return (
     <main className="flex flex-col gap-4 w-full max-w-none px-4 sm:px-6 mx-auto">
@@ -104,9 +117,9 @@ export default function QueryBuilderPage() {
           <Listbox
             className="rounded border bg-white"
             headers={["Nome", "Valor", "Expr"]}
-            items={[...init, ...varsCondition].map((v: any) => [
+            items={[...init, ...varsCondition].map((v: VarItem) => [
               v.name,
-              v.value ? v.value : "",
+              v.value !== undefined ? String(v.value) : "",
               v.expr ?? ""
             ])}
           />
@@ -118,14 +131,13 @@ export default function QueryBuilderPage() {
           <Listbox
             className="rounded border bg-white"
             headers={["Nome", "Valor", "Expr"]}
-            items={[...init, ...varsAction].map((v: any) => [
+            items={[...init, ...varsAction].map((v: VarItem) => [
               v.name,
-              v.value ? v.value : "",
+              v.value !== undefined ? String(v.value) : "",
               v.expr ?? ""
             ])}
           />
         </div>
-
       </div>
 
 
