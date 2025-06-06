@@ -1,6 +1,5 @@
 // src/app/page.tsx
 "use client";
-import { Listbox } from "visual-editor";
 import Link from 'next/link';
 
 export default function Home() {

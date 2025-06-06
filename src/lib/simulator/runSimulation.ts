@@ -1,8 +1,8 @@
 // frontend/src/lib/simulator/runSimulation.ts
-import { evalExpr, runExpr } from "@/utils/evalExpr";
+import { evalExpr } from "@/utils/evalExpr";
 import { Candle } from '@/types/types';
-import type { RuleGroupType, RuleGroupTypeAny } from "react-querybuilder";
-import { evaluateRuleGroup, runUdf } from "./ruleEngine";
+import type { RuleGroupTypeAny } from "react-querybuilder";
+import { evaluateRuleGroup } from "./ruleEngine";
 import { buildScopeFromVars, addUdfsToScope } from "@/lib/simulator/scopeUtils"; // Adicionar import
 import { userDefinedFunctions } from "@/data/strategies/udfs";
 

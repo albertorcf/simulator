@@ -1,6 +1,6 @@
 // apps/simulator/src/app/query-builder/page.tsx
 "use client";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { RuleGroupType } from "react-querybuilder";
 import { QueryBuilderEditor, Listbox } from "visual-editor";
 
@@ -31,7 +31,7 @@ export default function QueryBuilderPage() {
 
   const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
 
-  const selectedRule = rules[selectedRuleIndex];
+  //const selectedRule = rules[selectedRuleIndex];
 
   const [condQuery, setCondQuery] = useState<RuleGroupType>(
     rules[selectedRuleIndex].condition
