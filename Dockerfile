@@ -1,4 +1,4 @@
-# Etapa 1: Instalação de dependências e build
+## Etapa 1: Instalação de dependências e build
 FROM node:20-alpine AS builder
 WORKDIR /app
 
@@ -13,13 +13,16 @@ RUN npm install -g pnpm
 # Instala dependências do monorepo e do app
 RUN pnpm install --frozen-lockfile
 
+# Gera o Prisma Client ANTES do build do Next.js
+RUN pnpm --filter simulator exec prisma generate
+
 # Desabilita ESLint no build do Next.js temporariamente
 ENV NEXT_DISABLE_ESLINT_PLUGIN=1
-
-# Build apenas do app Next.js (sem dependências)
+# Build apenas do app Next.js
 RUN pnpm --filter simulator build
 
-# Etapa 2: Imagem de produção
+
+## Etapa 2: Imagem de produção
 FROM node:20-alpine
 WORKDIR /app
 
@@ -34,6 +37,14 @@ COPY --from=builder /app/apps/simulator ./apps/simulator
 
 # Muda para o diretório do app
 WORKDIR /app/apps/simulator
+
+# Gera o Prisma Client para a imagem de produção, caso seja necessário
+# em tempo de execução ou se não for copiado da etapa de build.
+RUN pnpm --filter simulator exec prisma generate
+# O build do Next.js já foi feito na etapa 'builder' e os artefatos copiados.
+# Estas linhas são provavelmente redundantes na etapa de produção.
+# ENV NEXT_DISABLE_ESLINT_PLUGIN=1
+# RUN pnpm --filter simulator build
 
 EXPOSE 3000
 ENV NODE_ENV=production
