@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { RuleGroupType } from "react-querybuilder"; // Certifique-se que RuleType também seja importado se necessário ou usado internamente por RuleGroupType
-import { QueryBuilderEditor, Listbox } from "visual-editor";
+import { QueryBuilderEditor, Listbox } from "ui-components";
 
 // Carrega a estratégia de exemplo
 import { baseStrategy } from "@/data/strategies/baseStrategy";

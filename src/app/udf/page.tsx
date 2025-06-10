@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { RuleGroupType } from "react-querybuilder";
-import { QueryBuilderEditor, Listbox } from "visual-editor";
+import { QueryBuilderEditor, Listbox } from "ui-components";
 import { evaluateRuleGroup, executeActions, runUdf } from "@/lib/simulator/ruleEngine";
 import { userDefinedFunctions, UserDefinedFunction, UdfBlock } from "@/data/strategies/udfs";
 import { buildScopeFromVars } from "@/lib/simulator/scopeUtils";

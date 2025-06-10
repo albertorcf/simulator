@@ -12,7 +12,7 @@ import { SimulationControls } from "@/components/SimulationControls";
 import { fetchBinanceCandles } from "@/utils/candles";
 import { baseStrategy } from "@/data/strategies/baseStrategy";
 import { useApexOptions } from "@/hooks/useApexOptions";
-import { QueryBuilderEditor, Listbox } from "visual-editor";
+import { QueryBuilderEditor, Listbox } from "ui-components";
 import { RuleGroupType } from "react-querybuilder";
 
 export default function TestePage() {
